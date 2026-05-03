@@ -19,8 +19,9 @@ export function AdminLayout() {
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === 'aclub2025' || password === 'admin') {
+    const trimmedPassword = password.trim();
+    console.log("Attempted login with password:", trimmedPassword);
+    if (trimmedPassword === 'aclub2025' || trimmedPassword === 'admin') {
       try {
         await signInAnonymously(auth);
         localStorage.setItem('aclub_admin_auth', 'true');
@@ -30,6 +31,7 @@ export function AdminLayout() {
         setError('Erreur de connexion.');
       }
     } else {
+      console.log("Password rejected");
       setError('Mot de passe incorrect');
     }
   };
