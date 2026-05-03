@@ -21,7 +21,7 @@ export function AdminLayout() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedPassword = password.trim();
-    if (trimmedPassword === 'admin') {
+    if (trimmedPassword === '123') {
       try {
         await signInAnonymously(auth);
         localStorage.setItem('aclub_admin_auth', 'true');
