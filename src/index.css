@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-noir: #0A0A0A;
+  --color-brand-kaki: #8B9B6B;
+  --color-brand-blanc: #F5F2ED;
+  --color-brand-anthracite: #1E1E1E;
+  --color-brand-gris: #7A7A7A;
+  --color-brand-terra: #C4714A;
+  
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+}
+
+@layer base {
+  :root {
+    --background: #0A0A0A;
+    --foreground: #F5F2ED;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+  }
+  
+  ::selection {
+    background-color: var(--color-brand-kaki);
+    color: var(--color-brand-noir);
+  }
+}
+
+/* Hide scrollbar for clean UI but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
