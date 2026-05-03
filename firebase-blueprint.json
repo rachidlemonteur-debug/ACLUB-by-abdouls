@@ -21,6 +21,8 @@
         "name": { "type": "string" },
         "slug": { "type": "string" },
         "description": { "type": "string" },
+        "materials": { "type": "string" },
+        "careInstructions": { "type": "string" },
         "price": { "type": "number" },
         "category": { "type": "string" },
         "isActive": { "type": "boolean" },

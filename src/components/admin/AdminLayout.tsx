@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, LogOut, Settings, Globe, MessageCircle, Lock } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { auth, signInAnonymously } from '../../lib/firebase';
 
 export function AdminLayout() {
   const location = useLocation();
@@ -11,18 +12,23 @@ export function AdminLayout() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const auth = localStorage.getItem('aclub_admin_auth');
-    if (auth === 'true') {
+    const authStatus = localStorage.getItem('aclub_admin_auth');
+    if (authStatus === 'true') {
       setIsAuthenticated(true);
     }
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password === 'aclub2025' || password === 'admin') {
-      localStorage.setItem('aclub_admin_auth', 'true');
-      setIsAuthenticated(true);
-      setError('');
+      try {
+        await signInAnonymously(auth);
+        localStorage.setItem('aclub_admin_auth', 'true');
+        setIsAuthenticated(true);
+        setError('');
+      } catch (err) {
+        setError('Erreur de connexion.');
+      }
     } else {
       setError('Mot de passe incorrect');
     }

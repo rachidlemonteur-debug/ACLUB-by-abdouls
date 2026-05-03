@@ -33,7 +33,7 @@ export default function App() {
           </Route>
 
           {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="admin/*" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="products" element={<ProductsManager />} />
             <Route path="settings" element={<AdminSettings />} />
