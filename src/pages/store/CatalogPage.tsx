@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../store/AppContext';
 import { formatPrice } from '../../lib/utils';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export function CatalogPage() {
   const { products, settings, trackPageView, trackWhatsAppClick } = useApp();
   const [activeCategory, setActiveCategory] = useState<string>('Tout');
+  const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
 
   useEffect(() => {
@@ -26,14 +27,23 @@ export function CatalogPage() {
     window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
   };
 
+  const filteredProducts = products
+    .filter(p => p.isActive)
+    .filter(p => activeCategory === 'Tout' || p.category === activeCategory)
+    .filter(p => 
+      searchQuery === '' || 
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      p.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
   return (
     <div className="flex flex-col w-full bg-brand-noir min-h-screen pt-12 pb-24 border-t border-[#333]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-16 border-b border-[#333] pb-6 gap-6">
-          <div>
+          <div className="w-full sm:w-auto">
             <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-brand-kaki mb-4">Inventaire Intégral</span>
             <h1 className="text-4xl md:text-5xl font-display text-brand-blanc tracking-[0.05em] leading-none mb-6">LE CATALOGUE</h1>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-4 sm:mb-0">
               {['Tout', 'Mode', 'Soin', 'Accessoire', 'Bundle'].map((cat) => (
                 <button
                   key={cat}
@@ -49,16 +59,25 @@ export function CatalogPage() {
               ))}
             </div>
           </div>
-          <div className="text-brand-gris text-sm font-medium">
-            {products.filter(p => activeCategory === 'Tout' || p.category === activeCategory).length} résultats
+          <div className="w-full sm:w-auto flex flex-col items-start sm:items-end gap-4 relative">
+            <div className="w-full sm:w-64 relative">
+              <input
+                type="text"
+                placeholder="Rechercher..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#111] border border-[#333] text-brand-blanc text-sm px-4 py-3 pl-10 focus:outline-none focus:border-brand-kaki transition-colors"
+              />
+              <Search className="w-4 h-4 text-brand-gris absolute left-3 top-1/2 -translate-y-1/2" />
+            </div>
+            <div className="text-brand-gris text-sm font-medium">
+              {filteredProducts.length} résultats
+            </div>
           </div>
         </div>
         
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 sm:gap-x-6 sm:gap-y-16">
-          {products
-            .filter(p => p.isActive)
-            .filter(p => activeCategory === 'Tout' || p.category === activeCategory)
-            .map((product) => (
+          {filteredProducts.map((product) => (
             <div key={product.id} className="group flex flex-col">
               {/* Image Area */}
               <Link to={`/product/${product.slug}`} className="relative aspect-[3/4] bg-[#0f0f0f] overflow-hidden block mb-4">
@@ -106,9 +125,9 @@ export function CatalogPage() {
           ))}
         </div>
         
-        {products.filter(p => activeCategory === 'Tout' || p.category === activeCategory).length === 0 && (
+        {filteredProducts.length === 0 && (
           <div className="text-center py-24 border border-[#333] bg-[#0f0f0f]">
-            <p className="text-brand-gris font-medium text-sm">Aucun produit ne correspond à cette catégorie pour le moment.</p>
+            <p className="text-brand-gris font-medium text-sm">Aucun produit ne correspond à votre recherche pour le moment.</p>
           </div>
         )}
       </div>
