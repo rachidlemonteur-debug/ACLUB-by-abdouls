@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Product, Testimonial, AdminStats, Category, Banner, PromoCode, Bundle, AppSettings, CartItem } from '../types';
+import { productService } from '../services/productService';
 
-// Mock initial data
 const initialCategories: Category[] = [
   { id: 'c1', name: 'Mode', icon: 'Shirt', color: '#8B9B6B', order: 1 },
   { id: 'c2', name: 'Soin', icon: 'Sparkles', color: '#8B9B6B', order: 2 },
@@ -19,94 +19,6 @@ const initialBanners: Banner[] = [
     ctaLink: '#',
     isActive: true,
     order: 1
-  }
-];
-
-const initialProducts: Product[] = [
-  {
-    id: "p1",
-    name: "Baume à Lèvres Essentiel",
-    slug: "baume-a-levres-essentiel",
-    price: 3500,
-    category: "Soin",
-    description: "Formulé pour une hydratation intense et durable. Une texture non-grasse, un fini mat invisible. L'essentiel du quotidien repensé avec élégance.",
-    materials: "Huile de baobab bio, beurre de karité, cire d'abeille naturelle.",
-    careInstructions: "Conserver à l'abri de la chaleur extrême.",
-    benefits: ["Hydratation 24h", "Fini invisible, sans brillance", "Ingrédients naturels purs"],
-    images: ["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800"],
-    isPopular: true,
-    badge: "PROMO",
-    stockStatus: "Disponible",
-    isActive: true,
-    isFeatured: true
-  },
-  {
-    id: "p2",
-    name: "Casquette Signature AClub",
-    slug: "casquette-signature",
-    price: 12000,
-    category: "Accessoire",
-    description: "Minimaliste, structurée, intemporelle. Coupe classique avec broderie ton sur ton subtile. Conçue pour s'adapter parfaitement et élever n'importe quelle tenue dans les rues de Niamey.",
-    materials: "100% Coton brossé premium.",
-    careInstructions: "Lavage à la main recommandé, séchage à l'air libre.",
-    benefits: ["Coton brossé premium", "Visière pré-courbée parfaite", "Ajustement sur-mesure"],
-    images: [
-      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=800",
-      "https://images.unsplash.com/photo-1512413914555-520556da8d9a?auto=format&fit=crop&q=80&w=800",
-      "https://images.unsplash.com/photo-1579450376662-87ff8b0eb1db?auto=format&fit=crop&q=80&w=800",
-      "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=800",
-      "https://images.unsplash.com/photo-1514316131433-28841459a0f5?auto=format&fit=crop&q=80&w=800"
-    ],
-    variants: {
-      colors: ["Noir", "Beige Sable"]
-    },
-    badge: "NOUVEAU",
-    stockStatus: "Disponible",
-    isActive: true,
-    isFeatured: true
-  },
-  {
-    id: "p3",
-    name: "T-Shirt Boxy Heavyweight",
-    slug: "tshirt-boxy-heavyweight",
-    price: 15000,
-    category: "Mode",
-    description: "La coupe parfaite, redéfinie. Un coton lourd qui tombe impeccablement, pensé pour le climat exigeant du Niger tout en conservant une structure premium.",
-    materials: "100% Coton Heavyweight 240gsm. Tissu respirant.",
-    careInstructions: "Lavage en machine à froid, repassage à l'envers.",
-    benefits: ["Coupe boxy moderne", "Matière épaisse et durable", "Col renforcé"],
-    images: [
-      "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&q=80&w=800",
-      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&q=80&w=800"
-    ],
-    variants: {
-      colors: ["Noir Charcoal", "Blanc Cassé"],
-      sizes: ["S", "M", "L", "XL"]
-    },
-    badge: "NOUVEAU",
-    stockStatus: "Disponible",
-    isActive: true,
-    isFeatured: true
-  },
-  {
-    id: "p4",
-    name: "AClub Essentials Kit",
-    slug: "aclub-essentials-kit",
-    price: 28000,
-    category: "Bundle",
-    description: "La trinité AClub. Tout ce dont vous avez besoin pour améliorer vos basiques au quotidien. Baume, Casquette et T-Shirt en un pack avantageux.",
-    materials: "Voir fiches produits individuelles.",
-    careInstructions: "Voir fiches produits individuelles.",
-    benefits: ["Le kit complet AClub", "Avantage sur le prix unitaire", "Cadeau idéal"],
-    images: ["https://images.unsplash.com/photo-1605810731677-4c079237baf6?auto=format&fit=crop&q=80&w=800"],
-    isPopular: true,
-    variants: {
-      sizes: ["S", "M", "L", "XL"]
-    },
-    badge: "Aucun",
-    stockStatus: "Disponible",
-    isActive: true,
-    isFeatured: true
   }
 ];
 
@@ -151,44 +63,23 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  // State definitions...
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('aclub_products');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      // Force refresh if old schema
-      if (parsed.length > 0 && !parsed[0].materials) {
-        return initialProducts;
-      }
-      return parsed;
-    }
-    return initialProducts;
-  });
-  const [categories, setCategories] = useState<Category[]>(() => {
-    const saved = localStorage.getItem('aclub_categories');
-    return saved ? JSON.parse(saved) : initialCategories;
-  });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    productService.getAllProducts().then(data => {
+      setProducts(data);
+      setLoading(false);
+    });
+  }, []);
+
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [banners, setBanners] = useState<Banner[]>(initialBanners);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
-    const saved = localStorage.getItem('aclub_testimonials');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.length > 0 && parsed[0].content.includes('Le baume est incroyable. J\'en mets une fois le matin et c\'est bon pour la journée. Qualité ouf.')) {
-        return initialTestimonials;
-      }
-      return parsed;
-    }
-    return initialTestimonials;
-  });
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(initialTestimonials);
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>(initialPromoCodes);
   const [bundles, setBundles] = useState<Bundle[]>(initialBundles);
-  const [settings, setSettings] = useState<AppSettings>(() => {
-    const saved = localStorage.getItem('aclub_settings');
-    return saved ? JSON.parse(saved) : initialSettings;
-  });
-  const [stats, setStats] = useState<AdminStats>(() => {
-    const saved = localStorage.getItem('aclub_stats');
-    return saved ? JSON.parse(saved) : {
+  const [settings, setSettings] = useState<AppSettings>(initialSettings);
+  const [stats, setStats] = useState<AdminStats>(() => ({
       totalViews: 458,
       whatsappClicks: 52,
       topProducts: [
@@ -196,17 +87,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         { name: "Casquette Signature AClub", views: 184 },
         { name: "Boxer Premium AClub", views: 95 }
       ]
-    };
-  });
+  }));
 
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('aclub_cart');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   const addToCart = (item: Omit<CartItem, 'cartItemId'>) => {
     setCart(prev => {
-      // Check if exact same item exists (same product id, color, size)
       const existingItem = prev.find(
         i => i.productId === item.productId && i.selectedColor === item.selectedColor && i.selectedSize === item.selectedSize
       );
@@ -239,20 +125,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => setCart([]);
 
-  // Effects for persistence
-  useEffect(() => { localStorage.setItem('aclub_products', JSON.stringify(products)); }, [products]);
-  useEffect(() => { localStorage.setItem('aclub_categories', JSON.stringify(categories)); }, [categories]);
-  useEffect(() => { localStorage.setItem('aclub_testimonials', JSON.stringify(testimonials)); }, [testimonials]);
-  useEffect(() => { localStorage.setItem('aclub_settings', JSON.stringify(settings)); }, [settings]);
-  useEffect(() => { localStorage.setItem('aclub_stats', JSON.stringify(stats)); }, [stats]);
-  useEffect(() => { localStorage.setItem('aclub_cart', JSON.stringify(cart)); }, [cart]);
-
   const trackWhatsAppClick = (productName: string) => {
     setStats(prev => ({
       ...prev,
       whatsappClicks: prev.whatsappClicks + 1
     }));
-    console.log(`WhatsApp click tracked for: ${productName}`);
   };
 
   const trackPageView = () => {
@@ -262,16 +139,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const addProduct = (product: Omit<Product, 'id'>) => {
-    const newProduct = { ...product, id: `p${Date.now()}` };
-    setProducts(prev => [newProduct, ...prev]);
+  const addProduct = async (product: Omit<Product, 'id'>) => {
+    const id = await productService.addProduct(product);
+    setProducts(prev => [{ ...product, id }, ...prev]);
   };
 
-  const updateProduct = (id: string, updates: Partial<Product>) => {
+  const updateProduct = async (id: string, updates: Partial<Product>) => {
+    await productService.updateProduct(id, updates);
     setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
   };
 
-  const deleteProduct = (id: string) => {
+  const deleteProduct = async (id: string) => {
+    await productService.deleteProduct(id);
     setProducts(prev => prev.filter(p => p.id !== id));
   };
 

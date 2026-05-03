@@ -1,0 +1,49 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "Product category",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "created_at": { "type": "number" }
+      },
+      "required": ["id", "name", "slug"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Product details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "isPopular": { "type": "boolean" },
+        "isFeatured": { "type": "boolean" },
+        "badge": { "type": "string" },
+        "stockStatus": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "benefits": { "type": "array", "items": { "type": "string" } },
+        "variants": { 
+          "type": "object",
+          "properties": {
+            "colors": { "type": "array", "items": { "type": "string" } },
+            "sizes": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "created_at": { "type": "number" },
+        "updated_at": { "type": "number" }
+      },
+      "required": ["id", "name", "slug", "price", "category"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": { "schema": "Product", "description": "Products" }
+  }
+}
