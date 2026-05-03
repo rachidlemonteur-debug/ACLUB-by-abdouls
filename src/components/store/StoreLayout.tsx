@@ -1,24 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Sparkles, ShoppingBag } from 'lucide-react';
 import { FloatingWhatsApp } from '../ui/FloatingWhatsApp';
 import { useApp } from '../../store/AppContext';
+import { CartDrawer } from './CartDrawer';
 
 export function StoreLayout() {
   const location = useLocation();
   const isHome = location.pathname === '/';
-  const { settings, trackWhatsAppClick } = useApp();
+  const { settings, trackWhatsAppClick, cart } = useApp();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
+  const cartItemsCount = cart.reduce((total, item) => total + item.quantity, 0);
+
   return (
     <div className="min-h-screen flex flex-col bg-brand-noir text-brand-blanc">
       {/* Promo Bar */}
-      <div className="bg-brand-kaki text-brand-noir text-[10px] sm:text-xs font-bold tracking-widest uppercase py-2.5 text-center px-4">
-        {settings.storeName} · Livraison rapide · Réponse immédiate
+      <div className="bg-brand-kaki text-brand-noir text-[10px] sm:text-xs font-bold tracking-widest uppercase py-2.5 text-center px-4 flex items-center justify-center gap-2">
+        <Sparkles className="w-3.5 h-3.5" />
+        Offre de lancement : -10% sur toutes vos commandes
       </div>
 
       {/* Navbar */}
@@ -45,9 +50,20 @@ export function StoreLayout() {
 
           <div className="flex items-center gap-6">
             <button 
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 text-brand-blanc hover:text-brand-kaki transition-colors"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              {cartItemsCount > 0 && (
+                <span className="absolute max-w-[20px] max-h-[20px] top-0 right-0 translate-x-1/4 -translate-y-1/4 bg-brand-kaki text-brand-noir text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center">
+                  {cartItemsCount}
+                </span>
+              )}
+            </button>
+            <button 
               onClick={() => {
                 trackWhatsAppClick('Menu Principal');
-                const message = encodeURIComponent('Bonjour AClub 👋 Je voudrais passer une commande. Pouvez-vous m\'aider ?');
+                const message = encodeURIComponent('Bonjour AClub 👋 Je voudrais passer une commande via le site et profiter des -10%. Pouvez-vous m\'aider ?');
                 window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
               }}
               className="bg-brand-kaki text-brand-noir px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-[#7a8a5a] transition-colors hidden sm:block border border-brand-kaki"
@@ -68,7 +84,7 @@ export function StoreLayout() {
                 <button 
                   onClick={() => {
                     trackWhatsAppClick('Menu Mobile');
-                    const message = encodeURIComponent('Bonjour AClub 👋 Je voudrais passer une commande. Pouvez-vous m\'aider ?');
+                    const message = encodeURIComponent('Bonjour AClub 👋 Je voudrais passer une commande via le site et profiter des -10%. Pouvez-vous m\'aider ?');
                     window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
                   }}
                   className="w-full bg-brand-kaki text-brand-noir px-4 py-4 text-xs font-bold uppercase tracking-widest hover:bg-[#7a8a5a] transition-colors border border-brand-kaki flex justify-center items-center"
@@ -129,6 +145,7 @@ export function StoreLayout() {
           </div>
         </div>
       </footer>
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 }

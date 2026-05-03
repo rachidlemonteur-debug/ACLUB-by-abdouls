@@ -3,7 +3,7 @@ import { useApp } from '../../store/AppContext';
 import { formatPrice } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
 import { Plus, Edit, Trash2, X } from 'lucide-react';
-import { Product, ProductCategory } from '../../types';
+import { Product, ProductCategoryType } from '../../types';
 
 export function ProductsManager() {
   const { products, addProduct, updateProduct, deleteProduct } = useApp();

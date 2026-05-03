@@ -11,6 +11,8 @@ export interface Product {
   name: string;
   price: number;
   description: string;
+  materials?: string;         // added for product detailed description
+  careInstructions?: string;  // added for product detailed description
   benefits: string[];
   category: ProductCategoryType;
   images: string[];
@@ -21,6 +23,17 @@ export interface Product {
   stockStatus: string;        // e.g. "Disponible" or "Épuisé" or actual number as string
   isActive: boolean;
   isFeatured: boolean;
+}
+
+export interface CartItem {
+  cartItemId: string; // unique generated ID to handle multiple of same product with diff variants
+  productId: string;
+  productName: string;
+  price: number;
+  quantity: number;
+  selectedColor?: string;
+  selectedSize?: string;
+  image: string;
 }
 
 export interface Category {

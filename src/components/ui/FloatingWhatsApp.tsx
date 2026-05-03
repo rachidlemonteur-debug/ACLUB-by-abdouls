@@ -6,7 +6,7 @@ export function FloatingWhatsApp() {
 
   const handleWhatsAppClick = () => {
     trackWhatsAppClick('Bouton Flottant Global');
-    const message = encodeURIComponent('Bonjour AClub 👋 Je voudrais passer une commande. Pouvez-vous m\'aider ?');
+    const message = encodeURIComponent('Bonjour AClub 👋 Je voudrais passer une commande via le site et profiter des -10%. Pouvez-vous m\'aider ?');
     window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
   };
 

@@ -27,13 +27,14 @@ export function HomePage() {
 
   const handleWhatsAppProduct = (productName: string, price: number) => {
     trackWhatsAppClick(`Produit: ${productName}`);
-    const message = encodeURIComponent(`Bonjour AClub 👋 Je suis intéressé(e) par ${productName} au prix de ${price} FCFA. Est-il disponible ?`);
+    const discountedPrice = Math.round(price * 0.9);
+    const message = encodeURIComponent(`Bonjour AClub 👋 Je suis intéressé(e) par ${productName} (Offre Site -10%). Le prix est de ${formatPrice(discountedPrice)} au lieu de ${formatPrice(price)}. Est-il disponible ?`);
     window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleWhatsAppGeneral = () => {
     trackWhatsAppClick('Bannière WhatsApp');
-    const message = encodeURIComponent('Bonjour AClub 👋 Je voudrais passer une commande. Pouvez-vous m\'aider ?');
+    const message = encodeURIComponent('Bonjour AClub 👋 Je voudrais passer une commande via le site et profiter des -10%. Pouvez-vous m\'aider ?');
     window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
   };
 
@@ -174,9 +175,14 @@ export function HomePage() {
                     <Link to={`/product/${product.slug}`} className="text-sm font-bold text-brand-blanc hover:text-brand-kaki transition-colors truncate pr-4">
                       {product.name}
                     </Link>
-                    <span className="text-sm font-bold text-brand-blanc whitespace-nowrap">
-                      {formatPrice(product.price)}
-                    </span>
+                    <div className="flex flex-col items-end">
+                      <span className="text-sm font-bold text-brand-kaki whitespace-nowrap">
+                        {formatPrice(Math.round(product.price * 0.9))}
+                      </span>
+                      <span className="text-[10px] text-brand-gris line-through whitespace-nowrap">
+                        {formatPrice(product.price)}
+                      </span>
+                    </div>
                   </div>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-brand-gris mb-4">{product.category}</span>
                   
@@ -273,13 +279,72 @@ export function HomePage() {
       <section className="bg-brand-kaki text-brand-noir w-full">
         <div className="max-w-4xl mx-auto px-4 py-24 sm:py-32 text-center flex flex-col items-center">
           <h2 className="text-5xl md:text-8xl font-display mb-6 tracking-[0.05em] leading-none text-brand-noir">PRÊT À COMMANDER ?</h2>
-          <p className="font-bold uppercase tracking-widest text-xs sm:text-sm mb-12 text-brand-noir/80">Un message suffit. On s'occupe du reste.</p>
+          <p className="font-bold uppercase tracking-widest text-xs sm:text-sm mb-12 text-brand-noir/80">Un message. -10% de réduction. On s'occupe du reste.</p>
           <button 
             onClick={handleWhatsAppGeneral}
             className="w-full sm:w-auto bg-brand-noir text-brand-blanc px-10 py-5 text-sm font-bold uppercase tracking-widest hover:bg-[#222] transition-colors border border-brand-noir"
           >
             Ouvrir WhatsApp →
           </button>
+        </div>
+      </section>
+
+      {/* SECTION 7 — FAQ */}
+      <section className="py-24 bg-brand-noir border-t border-[#333]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-display text-brand-blanc tracking-[0.05em] mb-4">FAQS</h2>
+          </div>
+          
+          <div className="space-y-4">
+            <details className="group border border-[#333] bg-[#0f0f0f] rounded-none">
+              <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-brand-blanc hover:text-brand-kaki transition-colors">
+                <span className="uppercase tracking-widest text-xs">Quels sont les délais et zones de livraison ?</span>
+                <span className="transition group-open:rotate-180">
+                  <svg fill="none" height="24" shapeRendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                </span>
+              </summary>
+              <div className="p-6 pt-0 text-brand-gris text-sm font-medium">
+                La livraison express est disponible uniquement à Niamey. Une fois votre commande confirmée sur WhatsApp, vous serez livré(e) dans un délai de 24 à 48 heures.
+              </div>
+            </details>
+            
+            <details className="group border border-[#333] bg-[#0f0f0f] rounded-none">
+              <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-brand-blanc hover:text-brand-kaki transition-colors">
+                <span className="uppercase tracking-widest text-xs">Quels sont les moyens de paiement ?</span>
+                <span className="transition group-open:rotate-180">
+                  <svg fill="none" height="24" shapeRendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                </span>
+              </summary>
+              <div className="p-6 pt-0 text-brand-gris text-sm font-medium">
+                Vous avez la possibilité de régler votre commande en Cash à la livraison ou via Mobile Money (+227). Le choix vous sera demandé lors de la validation WhatsApp.
+              </div>
+            </details>
+
+            <details className="group border border-[#333] bg-[#0f0f0f] rounded-none">
+              <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-brand-blanc hover:text-brand-kaki transition-colors">
+                <span className="uppercase tracking-widest text-xs">Comment fonctionne le processus de commande ?</span>
+                <span className="transition group-open:rotate-180">
+                  <svg fill="none" height="24" shapeRendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                </span>
+              </summary>
+              <div className="p-6 pt-0 text-brand-gris text-sm font-medium">
+                C'est très simple : ajoutez vos produits au panier, cliquez sur "Commander sur WhatsApp". Un message pré-rempli sera généré listant tout votre panier avec 10% de réduction. Nous vérifierons la disponibilité, et viendrons planifier la livraison directement avec vous.
+              </div>
+            </details>
+
+            <details className="group border border-[#333] bg-[#0f0f0f] rounded-none">
+              <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-brand-blanc hover:text-brand-kaki transition-colors">
+                <span className="uppercase tracking-widest text-xs">Puis-je retourner ou échanger un article ?</span>
+                <span className="transition group-open:rotate-180">
+                  <svg fill="none" height="24" shapeRendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                </span>
+              </summary>
+              <div className="p-6 pt-0 text-brand-gris text-sm font-medium">
+                Les retours et échanges sont acceptés sous 48h, uniquement si l'article n'a pas été porté/utilisé et se trouve dans son état d'origine. Les soins cosmétiques (ex: Baume à lèvres) ne sont ni repris ni échangés par mesure d'hygiène.
+              </div>
+            </details>
+          </div>
         </div>
       </section>
     </div>

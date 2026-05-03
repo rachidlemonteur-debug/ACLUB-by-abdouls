@@ -23,7 +23,8 @@ export function CatalogPage() {
 
   const handleWhatsAppProduct = (productName: string, price: number) => {
     trackWhatsAppClick(`Produit (Catalogue): ${productName}`);
-    const message = encodeURIComponent(`Bonjour AClub 👋 Je suis intéressé(e) par ${productName} au prix de ${price} FCFA. Est-il disponible ?`);
+    const discountedPrice = Math.round(price * 0.9);
+    const message = encodeURIComponent(`Bonjour AClub 👋 Je suis intéressé(e) par ${productName} (Offre Site -10%). Le prix est de ${formatPrice(discountedPrice)} au lieu de ${formatPrice(price)}. Est-il disponible ?`);
     window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
   };
 
@@ -106,9 +107,14 @@ export function CatalogPage() {
                   <Link to={`/product/${product.slug}`} className="text-sm font-bold text-brand-blanc hover:text-brand-kaki transition-colors truncate pr-4">
                     {product.name}
                   </Link>
-                  <span className="text-sm font-bold text-brand-blanc whitespace-nowrap">
-                    {formatPrice(product.price)}
-                  </span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-sm font-bold text-brand-kaki whitespace-nowrap">
+                      {formatPrice(Math.round(product.price * 0.9))}
+                    </span>
+                    <span className="text-[10px] text-brand-gris line-through whitespace-nowrap">
+                      {formatPrice(product.price)}
+                    </span>
+                  </div>
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-brand-gris mb-4">{product.category}</span>
                 

@@ -7,13 +7,14 @@ import { Check, MessageCircle, ShieldCheck, Truck } from 'lucide-react';
 
 export function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { products, trackWhatsAppClick } = useApp();
+  const { products, trackWhatsAppClick, addToCart } = useApp();
   
   const product = products.find(p => p.slug === slug);
 
   // Initialize selected variants if they exist
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [addedMessage, setAddedMessage] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -39,18 +40,31 @@ export function ProductPage() {
     return <Navigate to="/" replace />;
   }
 
-  const buildWhatsAppMessage = () => {
-    let msg = `Salut l'équipe AClub ! 👋\n\nJe suis intéressé(e) par le produit suivant :\n*${product.name}*\n`;
-    if (selectedColor) msg += `Couleur: ${selectedColor}\n`;
-    if (selectedSize) msg += `Taille: ${selectedSize}\n`;
-    msg += `Prix: ${formatPrice(product.price)}\n\nLien: ${window.location.href}\n\nPouvez-vous me confirmer la disponibilité ?`;
-    return msg;
-  };
-
   const handleWhatsAppClick = () => {
     trackWhatsAppClick(product.name);
-    window.open(getWhatsAppLink(buildWhatsAppMessage()), '_blank', 'noopener,noreferrer');
+    const discountedPrice = Math.round(product.price * 0.9);
+    let msg = `Salut l'équipe AClub ! 👋\n\nJe suis intéressé(e) par le produit suivant (Offre Site -10%) :\n*${product.name}*\n`;
+    if (selectedColor) msg += `Couleur: ${selectedColor}\n`;
+    if (selectedSize) msg += `Taille: ${selectedSize}\n`;
+    msg += `Prix: ${formatPrice(discountedPrice)} (au lieu de ${formatPrice(product.price)})\n\nLien: ${window.location.href}\n\nPouvez-vous me confirmer la disponibilité ?`;
+    window.open(getWhatsAppLink(msg), '_blank', 'noopener,noreferrer');
   };
+
+  const handleAddToCart = () => {
+    addToCart({
+      productId: product.id,
+      productName: product.name,
+      price: Math.round(product.price * 0.9), // Applying the 10% discount to cart price
+      quantity: 1,
+      selectedColor: selectedColor || undefined,
+      selectedSize: selectedSize || undefined,
+      image: product.images[0]
+    });
+    setAddedMessage(true);
+    setTimeout(() => setAddedMessage(false), 3000);
+  };
+
+  const discountedPrice = Math.round(product.price * 0.9);
 
   return (
     <div className="bg-brand-noir text-brand-blanc min-h-screen">
@@ -104,19 +118,44 @@ export function ProductPage() {
                 <span className="text-[10px] font-bold text-brand-gris uppercase tracking-widest border border-[#333] px-2 py-1">{product.category}</span>
               </div>
               
-              <h1 className="text-4xl sm:text-5xl font-display text-brand-blanc mb-2 tracking-[0.05em] uppercase leading-none">
+              <h1 className="text-4xl sm:text-5xl font-display text-brand-blanc mb-4 tracking-[0.05em] uppercase leading-none">
                 {product.name}
               </h1>
               
-              <p className="text-xl text-brand-gris mb-12 tracking-widest font-mono">
-                {formatPrice(product.price)}
-              </p>
+              <div className="flex items-center gap-4 mb-12">
+                <p className="text-2xl text-brand-kaki tracking-widest font-mono font-bold">
+                  {formatPrice(discountedPrice)}
+                </p>
+                <p className="text-lg text-brand-gris tracking-widest font-mono line-through">
+                  {formatPrice(product.price)}
+                </p>
+                <span className="text-[10px] font-bold text-brand-noir bg-brand-kaki px-2 py-1 uppercase tracking-widest">
+                  -10% Lancement
+                </span>
+              </div>
 
               <div className="w-full h-px bg-[#333] mb-12" />
 
-              <div className="prose prose-sm sm:prose-base text-brand-blanc mb-12 max-w-none">
+              <div className="prose prose-sm sm:prose-base text-brand-blanc mb-8 max-w-none">
                 <p className="font-sans text-sm font-medium leading-relaxed opacity-80">{product.description}</p>
               </div>
+
+              {(product.materials || product.careInstructions) && (
+                <div className="mb-12 space-y-4">
+                  {product.materials && (
+                    <div>
+                      <h4 className="text-[10px] font-bold text-brand-gris uppercase tracking-widest mb-1">Matière</h4>
+                      <p className="font-sans text-sm text-brand-blanc/80">{product.materials}</p>
+                    </div>
+                  )}
+                  {product.careInstructions && (
+                    <div>
+                      <h4 className="text-[10px] font-bold text-brand-gris uppercase tracking-widest mb-1">Entretien</h4>
+                      <p className="font-sans text-sm text-brand-blanc/80">{product.careInstructions}</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Variants */}
               {product.variants && (
@@ -185,13 +224,24 @@ export function ProductPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-8 flex flex-col gap-3">
+              <div className="mt-8 flex flex-col gap-3 relative">
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-brand-kaki text-brand-noir py-5 text-xs font-bold uppercase tracking-widest hover:bg-[#7a8a5a] transition-colors border border-brand-kaki flex justify-center items-center gap-2"
+                >
+                  Ajouter au Panier
+                </button>
                 <button 
                   onClick={handleWhatsAppClick}
-                  className="w-full bg-brand-blanc text-brand-noir py-5 text-xs font-bold uppercase tracking-widest hover:bg-[#e5e2dd] transition-colors border border-brand-blanc flex justify-center items-center gap-2"
+                  className="w-full bg-brand-noir text-brand-blanc py-4 text-xs font-bold uppercase tracking-widest hover:bg-[#111] transition-colors border border-[#333] flex justify-center items-center gap-2"
                 >
-                  <MessageCircle className="w-4 h-4" /> Commander l'article
+                  <MessageCircle className="w-4 h-4" /> Achat Rapide
                 </button>
+                {addedMessage && (
+                  <div className="absolute -top-12 left-0 right-0 bg-brand-kaki text-brand-noir text-xs font-bold text-center py-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    Produit ajouté au panier
+                  </div>
+                )}
               </div>
 
               {/* Trust Information */}

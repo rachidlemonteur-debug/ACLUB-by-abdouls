@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Product, Testimonial, AdminStats, Category, Banner, PromoCode, Bundle, AppSettings } from '../types';
+import { Product, Testimonial, AdminStats, Category, Banner, PromoCode, Bundle, AppSettings, CartItem } from '../types';
 
 // Mock initial data
 const initialCategories: Category[] = [
@@ -30,6 +30,8 @@ const initialProducts: Product[] = [
     price: 3500,
     category: "Soin",
     description: "Formulé pour une hydratation intense et durable. Une texture non-grasse, un fini mat invisible. L'essentiel du quotidien repensé avec élégance.",
+    materials: "Huile de baobab bio, beurre de karité, cire d'abeille naturelle.",
+    careInstructions: "Conserver à l'abri de la chaleur extrême.",
     benefits: ["Hydratation 24h", "Fini invisible, sans brillance", "Ingrédients naturels purs"],
     images: ["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800"],
     isPopular: true,
@@ -44,9 +46,17 @@ const initialProducts: Product[] = [
     slug: "casquette-signature",
     price: 12000,
     category: "Accessoire",
-    description: "Minimaliste, structurée, intemporelle. Coupe classique avec broderie ton sur ton subtile. Conçue pour s'adapter parfaitement et élever n'importe quelle tenue.",
+    description: "Minimaliste, structurée, intemporelle. Coupe classique avec broderie ton sur ton subtile. Conçue pour s'adapter parfaitement et élever n'importe quelle tenue dans les rues de Niamey.",
+    materials: "100% Coton brossé premium.",
+    careInstructions: "Lavage à la main recommandé, séchage à l'air libre.",
     benefits: ["Coton brossé premium", "Visière pré-courbée parfaite", "Ajustement sur-mesure"],
-    images: ["https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=800"],
+    images: [
+      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1512413914555-520556da8d9a?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1579450376662-87ff8b0eb1db?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1514316131433-28841459a0f5?auto=format&fit=crop&q=80&w=800"
+    ],
     variants: {
       colors: ["Noir", "Beige Sable"]
     },
@@ -57,18 +67,23 @@ const initialProducts: Product[] = [
   },
   {
     id: "p3",
-    name: "Boxer Premium AClub",
-    slug: "boxer-premium",
-    price: 8500,
+    name: "T-Shirt Boxy Heavyweight",
+    slug: "tshirt-boxy-heavyweight",
+    price: 15000,
     category: "Mode",
-    description: "Le confort absolu sans compromis sur le style. Maintien invisible, ceinture souple sans marque, coton respirant haute densité.",
-    benefits: ["Coton élasthanne respirant", "Ceinture douce anti-marque", "Coupe ergonomique"],
-    images: ["https://images.unsplash.com/photo-1603525281559-0f6a27e0ac05?auto=format&fit=crop&q=80&w=800"],
+    description: "La coupe parfaite, redéfinie. Un coton lourd qui tombe impeccablement, pensé pour le climat exigeant du Niger tout en conservant une structure premium.",
+    materials: "100% Coton Heavyweight 240gsm. Tissu respirant.",
+    careInstructions: "Lavage en machine à froid, repassage à l'envers.",
+    benefits: ["Coupe boxy moderne", "Matière épaisse et durable", "Col renforcé"],
+    images: [
+      "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&q=80&w=800"
+    ],
     variants: {
-      colors: ["Noir", "Blanc", "Gris Chine"],
+      colors: ["Noir Charcoal", "Blanc Cassé"],
       sizes: ["S", "M", "L", "XL"]
     },
-    badge: "Aucun",
+    badge: "NOUVEAU",
     stockStatus: "Disponible",
     isActive: true,
     isFeatured: true
@@ -77,9 +92,11 @@ const initialProducts: Product[] = [
     id: "p4",
     name: "AClub Essentials Kit",
     slug: "aclub-essentials-kit",
-    price: 21000,
+    price: 28000,
     category: "Bundle",
-    description: "La trinité AClub. Tout ce dont vous avez besoin pour améliorer vos basiques au quotidien. Baume, Casquette et Boxer en un pack avantageux.",
+    description: "La trinité AClub. Tout ce dont vous avez besoin pour améliorer vos basiques au quotidien. Baume, Casquette et T-Shirt en un pack avantageux.",
+    materials: "Voir fiches produits individuelles.",
+    careInstructions: "Voir fiches produits individuelles.",
     benefits: ["Le kit complet AClub", "Avantage sur le prix unitaire", "Cadeau idéal"],
     images: ["https://images.unsplash.com/photo-1605810731677-4c079237baf6?auto=format&fit=crop&q=80&w=800"],
     isPopular: true,
@@ -94,9 +111,9 @@ const initialProducts: Product[] = [
 ];
 
 const initialTestimonials: Testimonial[] = [
-  { id: "t1", name: "Amadou S.", content: "Le baume est incroyable. J'en mets une fois le matin et c'est bon pour la journée. Qualité ouf.", productName: "Baume à Lèvres", rating: 5, date: "2024-03-12", isActive: true },
-  { id: "t2", name: "Ibrahim K.", content: "Casquette commandée sur WhatsApp, reçue vite. Le fit est parfait et la matière très premium.", productName: "Casquette Signature", rating: 5, date: "2024-03-15", isActive: true },
-  { id: "t3", name: "Nasser A.", content: "Enfin une marque ici qui propose des essentiels avec un vrai soin du détail. Les boxers sont top.", productName: "Boxer Premium", rating: 5, date: "2024-03-20", isActive: true },
+  { id: "t1", name: "Amadou S.", content: "Le baume est incroyable. J'en mets une fois le matin et c'est bon pour la journée, même avec la chaleur de Niamey. Qualité ouf.", productName: "Baume à Lèvres", rating: 5, date: "2024-03-12", isActive: true },
+  { id: "t2", name: "Ibrahim K.", content: "T-shirt commandé sur WhatsApp, reçu en 24h. Le fit boxy est parfait, on dirait une marque de LA mais pensé pour nous.", productName: "T-Shirt Boxy", rating: 5, date: "2024-03-15", isActive: true },
+  { id: "t3", name: "Nasser A.", content: "Enfin un concept store ici qui propose des essentiels avec un vrai soin du détail. Je valide à 100%.", productName: "Essentials Kit", rating: 5, date: "2024-03-20", isActive: true },
 ];
 
 const initialPromoCodes: PromoCode[] = [];
@@ -118,6 +135,11 @@ interface AppContextType {
   bundles: Bundle[];
   settings: AppSettings;
   stats: AdminStats;
+  cart: CartItem[];
+  addToCart: (item: Omit<CartItem, 'cartItemId'>) => void;
+  removeFromCart: (cartItemId: string) => void;
+  updateCartItemQuantity: (cartItemId: string, quantity: number) => void;
+  clearCart: () => void;
   trackWhatsAppClick: (productName: string) => void;
   trackPageView: () => void;
   addProduct: (product: Omit<Product, 'id'>) => void;
@@ -132,7 +154,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // State definitions...
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('aclub_products');
-    return saved ? JSON.parse(saved) : initialProducts;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Force refresh if old schema
+      if (parsed.length > 0 && !parsed[0].materials) {
+        return initialProducts;
+      }
+      return parsed;
+    }
+    return initialProducts;
   });
   const [categories, setCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('aclub_categories');
@@ -141,7 +171,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [banners, setBanners] = useState<Banner[]>(initialBanners);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
     const saved = localStorage.getItem('aclub_testimonials');
-    return saved ? JSON.parse(saved) : initialTestimonials;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.length > 0 && parsed[0].content.includes('Le baume est incroyable. J\'en mets une fois le matin et c\'est bon pour la journée. Qualité ouf.')) {
+        return initialTestimonials;
+      }
+      return parsed;
+    }
+    return initialTestimonials;
   });
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>(initialPromoCodes);
   const [bundles, setBundles] = useState<Bundle[]>(initialBundles);
@@ -162,12 +199,53 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   });
 
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const saved = localStorage.getItem('aclub_cart');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const addToCart = (item: Omit<CartItem, 'cartItemId'>) => {
+    setCart(prev => {
+      // Check if exact same item exists (same product id, color, size)
+      const existingItem = prev.find(
+        i => i.productId === item.productId && i.selectedColor === item.selectedColor && i.selectedSize === item.selectedSize
+      );
+
+      if (existingItem) {
+        return prev.map(i =>
+          i.cartItemId === existingItem.cartItemId
+            ? { ...i, quantity: i.quantity + item.quantity }
+            : i
+        );
+      }
+
+      return [...prev, { ...item, cartItemId: Date.now().toString() }];
+    });
+  };
+
+  const removeFromCart = (cartItemId: string) => {
+    setCart(prev => prev.filter(item => item.cartItemId !== cartItemId));
+  };
+
+  const updateCartItemQuantity = (cartItemId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(cartItemId);
+      return;
+    }
+    setCart(prev =>
+      prev.map(item => (item.cartItemId === cartItemId ? { ...item, quantity } : item))
+    );
+  };
+
+  const clearCart = () => setCart([]);
+
   // Effects for persistence
   useEffect(() => { localStorage.setItem('aclub_products', JSON.stringify(products)); }, [products]);
   useEffect(() => { localStorage.setItem('aclub_categories', JSON.stringify(categories)); }, [categories]);
   useEffect(() => { localStorage.setItem('aclub_testimonials', JSON.stringify(testimonials)); }, [testimonials]);
   useEffect(() => { localStorage.setItem('aclub_settings', JSON.stringify(settings)); }, [settings]);
   useEffect(() => { localStorage.setItem('aclub_stats', JSON.stringify(stats)); }, [stats]);
+  useEffect(() => { localStorage.setItem('aclub_cart', JSON.stringify(cart)); }, [cart]);
 
   const trackWhatsAppClick = (productName: string) => {
     setStats(prev => ({
@@ -211,6 +289,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       bundles,
       settings,
       stats, 
+      cart,
+      addToCart,
+      removeFromCart,
+      updateCartItemQuantity,
+      clearCart,
       trackWhatsAppClick, 
       trackPageView,
       addProduct,

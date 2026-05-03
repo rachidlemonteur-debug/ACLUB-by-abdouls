@@ -10,6 +10,7 @@ import { HomePage } from './pages/store/HomePage';
 import { ProductPage } from './pages/store/ProductPage';
 import { CatalogPage } from './pages/store/CatalogPage';
 import { AboutPage } from './pages/store/AboutPage';
+import { NotFoundPage } from './pages/store/NotFoundPage';
 
 // Admin Pages
 import { Dashboard } from './pages/admin/Dashboard';
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="catalogue" element={<CatalogPage />} />
             <Route path="a-propos" element={<AboutPage />} />
             <Route path="product/:slug" element={<ProductPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
 
           {/* Admin Routes */}
