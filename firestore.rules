@@ -1,23 +1,41 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helpers
-    function isSignedIn() { return request.auth != null; }
-    function isAdmin() { return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    // Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
 
-    // 0. Global Safety Net
+    function isAdmin() {
+      return isSignedIn(); // In this setup, anyone authenticated is an admin.
+    }
+
+    // Default Deny
     match /{document=**} {
       allow read, write: if false;
     }
 
+    // Collections
     match /categories/{categoryId} {
-      allow read: if true; // Categories are public
-      allow create, update, delete: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     match /products/{productId} {
-      allow read: if true; // Allow all reads for now
-      allow create, update, delete: if isSignedIn();
+      // allow read if product is active, or if user is admin
+      allow read: if (resource == null) || resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /product_variants/{variantId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /product_images/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

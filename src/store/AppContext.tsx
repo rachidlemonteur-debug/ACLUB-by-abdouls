@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Product, Testimonial, AdminStats, Category, Banner, PromoCode, Bundle, AppSettings, CartItem } from '../types';
-import { productService } from '../services/productService';
+import { getProducts, getCategories } from '../services/firebaseService';
 
+// Mock initial data
 const initialCategories: Category[] = [
   { id: 'c1', name: 'Mode', icon: 'Shirt', color: '#8B9B6B', order: 1 },
   { id: 'c2', name: 'Soin', icon: 'Sparkles', color: '#8B9B6B', order: 2 },
@@ -22,6 +23,8 @@ const initialBanners: Banner[] = [
   }
 ];
 
+const initialProducts: Product[] = []; // Now fetching from Firebase
+
 const initialTestimonials: Testimonial[] = [
   { id: "t1", name: "Amadou S.", content: "Le baume est incroyable. J'en mets une fois le matin et c'est bon pour la journée, même avec la chaleur de Niamey. Qualité ouf.", productName: "Baume à Lèvres", rating: 5, date: "2024-03-12", isActive: true },
   { id: "t2", name: "Ibrahim K.", content: "T-shirt commandé sur WhatsApp, reçu en 24h. Le fit boxy est parfait, on dirait une marque de LA mais pensé pour nous.", productName: "T-Shirt Boxy", rating: 5, date: "2024-03-15", isActive: true },
@@ -33,6 +36,7 @@ const initialBundles: Bundle[] = [];
 
 const initialSettings: AppSettings = {
   whatsappNumber: "22700000000",
+  defaultWhatsappMessage: "Bonjour AClub, je souhaite commander : {produit} - {variante}",
   storeName: "AClub by Abdouls",
   slogan: "Sélectionné. Livré. C'est tout.",
   instagramUrl: "https://instagram.com/aclubbyabdouls"
@@ -63,23 +67,30 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  // State definitions...
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    productService.getAllProducts().then(data => {
-      setProducts(data);
-      setLoading(false);
-    });
-  }, []);
-
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [banners, setBanners] = useState<Banner[]>(initialBanners);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(initialTestimonials);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
+    const saved = localStorage.getItem('aclub_testimonials');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.length > 0 && parsed[0].content.includes('Le baume est incroyable. J\'en mets une fois le matin et c\'est bon pour la journée. Qualité ouf.')) {
+        return initialTestimonials;
+      }
+      return parsed;
+    }
+    return initialTestimonials;
+  });
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>(initialPromoCodes);
   const [bundles, setBundles] = useState<Bundle[]>(initialBundles);
-  const [settings, setSettings] = useState<AppSettings>(initialSettings);
-  const [stats, setStats] = useState<AdminStats>(() => ({
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    const saved = localStorage.getItem('aclub_settings');
+    return saved ? JSON.parse(saved) : initialSettings;
+  });
+  const [stats, setStats] = useState<AdminStats>(() => {
+    const saved = localStorage.getItem('aclub_stats');
+    return saved ? JSON.parse(saved) : {
       totalViews: 458,
       whatsappClicks: 52,
       topProducts: [
@@ -87,9 +98,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
         { name: "Casquette Signature AClub", views: 184 },
         { name: "Boxer Premium AClub", views: 95 }
       ]
-  }));
+    };
+  });
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const saved = localStorage.getItem('aclub_cart');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    // Load products and categories from Firebase
+    const loadFirebaseData = async () => {
+      try {
+        const prodData = await getProducts();
+        const mappedProducts: Product[] = prodData.map((p: any) => ({
+          id: p.id,
+          name: p.title,
+          slug: p.slug,
+          price: p.price,
+          category: p.category?.name || 'Mode',
+          description: p.description,
+          materials: '',
+          benefits: [],
+          careInstructions: '',
+          images: p.images?.length ? p.images.map((i: any) => i.image_url) : ['https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=800'],
+          isActive: p.is_active,
+          badge: p.status_badge || 'Aucun',
+          stockStatus: 'Disponible',
+          isPopular: false,
+          isFeatured: true,
+          variants: {
+            colors: p.variants?.filter((v:any) => v.name === 'Couleur').map((v:any) => v.value),
+            sizes: p.variants?.filter((v:any) => v.name === 'Taille').map((v:any) => v.value)
+          }
+        }));
+        setProducts(mappedProducts);
+
+        const catsData = await getCategories();
+        if (catsData.length > 0) {
+          const mappedCats: Category[] = catsData.map((c: any) => ({
+             id: c.id,
+             name: c.name,
+             icon: 'Shirt',
+             color: '#8B9B6B',
+             order: 1
+          }));
+          setCategories(mappedCats);
+        }
+      } catch (err) {
+        console.error("Failed to load generic store data", err);
+      }
+    };
+    loadFirebaseData();
+  }, []);
 
   const addToCart = (item: Omit<CartItem, 'cartItemId'>) => {
     setCart(prev => {
@@ -125,11 +186,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => setCart([]);
 
+  // Effects for persistence
+  useEffect(() => { localStorage.setItem('aclub_testimonials', JSON.stringify(testimonials)); }, [testimonials]);
+  useEffect(() => { localStorage.setItem('aclub_settings', JSON.stringify(settings)); }, [settings]);
+  useEffect(() => { localStorage.setItem('aclub_stats', JSON.stringify(stats)); }, [stats]);
+  useEffect(() => { localStorage.setItem('aclub_cart', JSON.stringify(cart)); }, [cart]);
+
   const trackWhatsAppClick = (productName: string) => {
     setStats(prev => ({
       ...prev,
       whatsappClicks: prev.whatsappClicks + 1
     }));
+    console.log(`WhatsApp click tracked for: ${productName}`);
   };
 
   const trackPageView = () => {
@@ -139,18 +207,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const addProduct = async (product: Omit<Product, 'id'>) => {
-    const id = await productService.addProduct(product);
-    setProducts(prev => [{ ...product, id }, ...prev]);
+  const addProduct = (product: Omit<Product, 'id'>) => {
+    const newProduct = { ...product, id: `p${Date.now()}` };
+    setProducts(prev => [newProduct, ...prev]);
   };
 
-  const updateProduct = async (id: string, updates: Partial<Product>) => {
-    await productService.updateProduct(id, updates);
+  const updateProduct = (id: string, updates: Partial<Product>) => {
     setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
   };
 
-  const deleteProduct = async (id: string) => {
-    await productService.deleteProduct(id);
+  const deleteProduct = (id: string) => {
     setProducts(prev => prev.filter(p => p.id !== id));
   };
 

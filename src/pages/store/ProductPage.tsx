@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useApp } from '../../store/AppContext';
 import { formatPrice, getWhatsAppLink, cn } from '../../lib/utils';
-import { Button } from '../../components/ui/Button';
+import { Button } from '../../components/ui/button';
 import { Check, MessageCircle, ShieldCheck, Truck } from 'lucide-react';
 
 export function ProductPage() {
@@ -42,12 +42,21 @@ export function ProductPage() {
 
   const handleWhatsAppClick = () => {
     trackWhatsAppClick(product.name);
+    
+    const variantDetails = [];
+    if (selectedColor) variantDetails.push(`Couleur: ${selectedColor}`);
+    if (selectedSize) variantDetails.push(`Taille: ${selectedSize}`);
+    const variantString = variantDetails.join(', ');
+    
     const discountedPrice = Math.round(product.price * 0.9);
-    let msg = `Salut l'équipe AClub ! 👋\n\nJe suis intéressé(e) par le produit suivant (Offre Site -10%) :\n*${product.name}*\n`;
-    if (selectedColor) msg += `Couleur: ${selectedColor}\n`;
-    if (selectedSize) msg += `Taille: ${selectedSize}\n`;
-    msg += `Prix: ${formatPrice(discountedPrice)} (au lieu de ${formatPrice(product.price)})\n\nLien: ${window.location.href}\n\nPouvez-vous me confirmer la disponibilité ?`;
-    window.open(getWhatsAppLink(msg), '_blank', 'noopener,noreferrer');
+    
+    let messageTemplate = settings.defaultWhatsappMessage || "Bonjour AClub, je souhaite commander : {produit} - {variante} au prix de {prix}";
+    messageTemplate = messageTemplate.replace('{produit}', product.name)
+                                     .replace('{variante}', variantString)
+                                     .replace('{prix}', formatPrice(discountedPrice));
+                                     
+    const message = encodeURIComponent(messageTemplate);
+    window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleAddToCart = () => {

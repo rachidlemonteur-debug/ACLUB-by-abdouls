@@ -2,50 +2,78 @@
   "entities": {
     "Category": {
       "title": "Category",
-      "description": "Product category",
+      "description": "Category for products",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
         "name": { "type": "string" },
         "slug": { "type": "string" },
-        "created_at": { "type": "number" }
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "name", "slug"]
+      "required": ["name", "slug", "createdAt"]
     },
     "Product": {
       "title": "Product",
-      "description": "Product details",
+      "description": "Stores information for basic products",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
+        "title": { "type": "string" },
         "slug": { "type": "string" },
         "description": { "type": "string" },
-        "materials": { "type": "string" },
-        "careInstructions": { "type": "string" },
-        "price": { "type": "number" },
-        "category": { "type": "string" },
+        "price": { "type": "integer" },
+        "categoryId": { "type": "string" },
         "isActive": { "type": "boolean" },
-        "isPopular": { "type": "boolean" },
-        "isFeatured": { "type": "boolean" },
-        "badge": { "type": "string" },
-        "stockStatus": { "type": "string" },
-        "images": { "type": "array", "items": { "type": "string" } },
-        "benefits": { "type": "array", "items": { "type": "string" } },
-        "variants": { 
-          "type": "object",
-          "properties": {
-            "colors": { "type": "array", "items": { "type": "string" } },
-            "sizes": { "type": "array", "items": { "type": "string" } }
-          }
-        },
-        "created_at": { "type": "number" },
-        "updated_at": { "type": "number" }
+        "statusBadge": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "name", "slug", "price", "category"]
+      "required": ["title", "slug", "price", "categoryId", "isActive", "createdAt", "updatedAt"]
+    },
+    "ProductVariant": {
+      "title": "Product Variant",
+      "description": "A variant for a product",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "name": { "type": "string" },
+        "value": { "type": "string" },
+        "sku": { "type": "string" },
+        "additionalPrice": { "type": "integer" },
+        "stockQuantity": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productId", "name", "value", "sku", "additionalPrice", "stockQuantity", "createdAt", "updatedAt"]
+    },
+    "ProductImage": {
+      "title": "Product Image",
+      "description": "Images for products/variants",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "variantId": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "displayOrder": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productId", "imageUrl", "displayOrder", "createdAt"]
     }
   },
   "firestore": {
-    "/products/{productId}": { "schema": "Product", "description": "Products" }
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Categories for the store"
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Products of the store"
+    },
+    "/product_variants/{variantId}": {
+      "schema": { "$ref": "#/entities/ProductVariant" },
+      "description": "Product variants"
+    },
+    "/product_images/{imageId}": {
+      "schema": { "$ref": "#/entities/ProductImage" },
+      "description": "Product images"
+    }
   }
 }

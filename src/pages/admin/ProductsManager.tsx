@@ -1,55 +1,86 @@
-import React, { useState } from 'react';
-import { useApp } from '../../store/AppContext';
+import React, { useState, useEffect } from 'react';
 import { formatPrice } from '../../lib/utils';
-import { Button } from '../../components/ui/Button';
+import { Button } from '../../components/ui/button';
 import { Plus, Edit, Trash2, X } from 'lucide-react';
-import { Product, ProductCategoryType } from '../../types';
+import { Product } from '../../types';
+import { getProducts, createProduct, updateProduct, deleteProduct, getCategories } from '../../services/firebaseService';
+import { toast } from 'sonner';
+import { ImageUpload } from '../../components/admin/ImageUpload';
 
 export function ProductsManager() {
-  const { products, addProduct, updateProduct, deleteProduct } = useApp();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   
-  const [formData, setFormData] = useState<Partial<Product>>({
-    name: '',
+  const [formData, setFormData] = useState<any>({
+    title: '',
     slug: '',
     price: 0,
-    category: 'Soin',
+    category_id: '',
     description: '',
-    benefits: [],
     images: [],
-    isPopular: false,
-    variants: { colors: [], sizes: [] },
-    badge: 'Aucun',
-    stockStatus: 'Disponible',
-    isActive: true,
-    isFeatured: false
+    is_active: true,
+    status_badge: 'Aucun',
+    variants: { colors: [], sizes: [] }
   });
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [prodsData, catsData] = await Promise.all([
+        getProducts(true),
+        getCategories()
+      ]);
+      setProducts(prodsData || []);
+      setCategories(catsData || []);
+    } catch (error: any) {
+      toast.error("Erreur de chargement des données: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const openAddModal = () => {
     setEditingProduct(null);
     setFormData({
-      name: '',
+      title: '',
       slug: '',
       price: 0,
-      category: 'Soin',
+      category_id: categories.length > 0 ? categories[0].id : '',
       description: '',
-      benefits: [],
       images: [],
-      isPopular: false,
-      variants: { colors: [], sizes: [] },
-      badge: 'Aucun',
-      stockStatus: 'Disponible',
-      isActive: true,
-      isFeatured: false
+      is_active: true,
+      status_badge: 'Aucun',
+      variants: { colors: [], sizes: [] }
     });
     setIsModalOpen(true);
   };
 
-  const openEditModal = (product: Product) => {
+  const openEditModal = (product: any) => {
     setEditingProduct(product);
-    setFormData({ ...product });
+    // Parse variants back into form format
+    const sizes = product.variants?.filter((v: any) => v.name === 'Taille').map((v: any) => v.value) || [];
+    const colors = product.variants?.filter((v: any) => v.name === 'Couleur').map((v: any) => v.value) || [];
+    const images = product.images?.sort((a: any, b: any) => a.display_order - b.display_order).map((i: any) => i.image_url) || [];
+
+    setFormData({ 
+      title: product.title,
+      slug: product.slug,
+      price: product.price,
+      category_id: product.category_id,
+      description: product.description || '',
+      images: images,
+      is_active: product.is_active,
+      status_badge: product.status_badge || 'Aucun',
+      variants: { colors, sizes }
+    });
     setIsModalOpen(true);
   };
 
@@ -63,22 +94,21 @@ export function ProductsManager() {
     
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
+      setFormData((prev: any) => ({ ...prev, [name]: checked }));
     } else if (name === 'price') {
-      setFormData(prev => ({ ...prev, [name]: Number(value) }));
-    } else if (name === 'benefits' || name === 'images') {
-      // Handle array inputs as line-separated strings
+      setFormData((prev: any) => ({ ...prev, [name]: Number(value) }));
+    } else if (name === 'benefits') {
       const arrayValue = value.split('\n').filter(line => line.trim() !== '');
-      setFormData(prev => ({ ...prev, [name]: arrayValue }));
+      setFormData((prev: any) => ({ ...prev, [name]: arrayValue }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev: any) => ({ ...prev, [name]: value }));
     }
   };
 
   const handleVariantChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const arrayValue = value.split('\n').filter(line => line.trim() !== '');
-    setFormData(prev => ({
+    setFormData((prev: any) => ({
       ...prev,
       variants: {
         ...prev.variants,
@@ -87,23 +117,59 @@ export function ProductsManager() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.slug || !formData.price || !formData.category) return;
+    if (!formData.title || !formData.slug || !formData.price || !formData.category_id) return;
 
-    if (editingProduct) {
-      updateProduct(editingProduct.id, formData);
-    } else {
-      addProduct(formData as Omit<Product, 'id'>);
+    // Transform formData to Subapase tables format
+    const productData = {
+      title: formData.title,
+      slug: formData.slug,
+      price: formData.price,
+      category_id: formData.category_id,
+      description: formData.description,
+      is_active: formData.is_active,
+      status_badge: formData.status_badge === 'Aucun' ? null : formData.status_badge
+    };
+
+    // Build variants
+    const variantsList: any[] = [];
+    formData.variants.sizes?.forEach((v: string) => variantsList.push({ name: 'Taille', value: v, sku: `${formData.slug}-size-${v}`, stock_quantity: 10 }));
+    formData.variants.colors?.forEach((v: string) => variantsList.push({ name: 'Couleur', value: v, sku: `${formData.slug}-color-${v}`, stock_quantity: 10 }));
+
+    // Build images
+    const imagesList: any[] = formData.images?.map((url: string, idx: number) => ({
+      image_url: url,
+      display_order: idx + 1
+    })) || [];
+
+    try {
+      if (editingProduct) {
+        await updateProduct(editingProduct.id, productData, variantsList, imagesList);
+        toast.success("Produit mis à jour");
+      } else {
+        await createProduct(productData, variantsList, imagesList);
+        toast.success("Produit créé");
+      }
+      closeModal();
+      loadData();
+    } catch (error: any) {
+      toast.error(error.message);
     }
-    closeModal();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
-      deleteProduct(id);
+      try {
+        await deleteProduct(id);
+        toast.success("Produit supprimé");
+        loadData();
+      } catch (error: any) {
+        toast.error(error.message);
+      }
     }
   };
+
 
   return (
     <div>
@@ -131,33 +197,33 @@ export function ProductsManager() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
-              {products.map((product) => (
+              {products.map((product: any) => (
                 <tr key={product.id} className="hover:bg-neutral-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded bg-neutral-100 overflow-hidden shrink-0">
                         {product.images && product.images.length > 0 && (
-                          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                          <img src={product.images[0].image_url} alt={product.title} className="w-full h-full object-cover" />
                         )}
                       </div>
                       <div>
-                        <div className="font-medium text-black">{product.name}</div>
-                        {product.isPopular && <div className="text-[10px] text-emerald-600 font-bold uppercase mt-0.5">Best Seller</div>}
+                        <div className="font-medium text-black">{product.title}</div>
+                        {product.status_badge && <div className="text-[10px] text-emerald-600 font-bold uppercase mt-0.5">{product.status_badge}</div>}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className="bg-neutral-100 text-neutral-600 px-2.5 py-1 rounded-full text-xs font-medium uppercase">
-                      {product.category}
+                      {product.category?.name || '-'}
                     </span>
                   </td>
                   <td className="px-6 py-4 font-medium text-black">
                     {formatPrice(product.price)}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${product.isActive ? 'text-emerald-600' : 'text-neutral-400'}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${product.isActive ? 'bg-emerald-500' : 'bg-neutral-400'}`}></span>
-                      {product.isActive ? 'En Ligne' : 'Brouillon'}
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${product.is_active ? 'text-emerald-600' : 'text-neutral-400'}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${product.is_active ? 'bg-emerald-500' : 'bg-neutral-400'}`}></span>
+                      {product.is_active ? 'En Ligne' : 'Brouillon'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -208,9 +274,9 @@ export function ProductsManager() {
                   <label className="block text-sm font-medium text-neutral-700">Nom du Produit *</label>
                   <input 
                     type="text" 
-                    name="name" 
+                    name="title" 
                     required 
-                    value={formData.name || ''} 
+                    value={formData.title || ''} 
                     onChange={handleChange}
                     className="w-full border border-neutral-200 rounded-md px-3 py-2 focus:outline-none focus:border-black" 
                   />
@@ -244,16 +310,16 @@ export function ProductsManager() {
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-neutral-700">Catégorie *</label>
                   <select 
-                    name="category" 
+                    name="category_id" 
                     required
-                    value={formData.category || 'Soin'} 
+                    value={formData.category_id || ''} 
                     onChange={handleChange}
                     className="w-full border border-neutral-200 rounded-md px-3 py-2 focus:outline-none focus:border-black"
                   >
-                    <option value="Soin">Soin</option>
-                    <option value="Accessoire">Accessoire</option>
-                    <option value="Mode">Mode</option>
-                    <option value="Bundle">Bundle</option>
+                    <option value="" disabled>Sélectionner une catégorie</option>
+                    {categories.map((cat: any) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -262,8 +328,8 @@ export function ProductsManager() {
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-neutral-700">Badge</label>
                   <select 
-                    name="badge" 
-                    value={formData.badge || 'Aucun'} 
+                    name="status_badge" 
+                    value={formData.status_badge || 'Aucun'} 
                     onChange={handleChange}
                     className="w-full border border-neutral-200 rounded-md px-3 py-2 focus:outline-none focus:border-black"
                   >
@@ -312,14 +378,10 @@ export function ProductsManager() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-neutral-700">Images (URLs, 1 par ligne)</label>
-                  <textarea 
-                    name="images" 
-                    rows={4}
-                    value={formData.images?.join('\n') || ''} 
-                    onChange={handleChange}
-                    placeholder="https://images.unsplash.com/photo-..."
-                    className="w-full border border-neutral-200 rounded-md px-3 py-2 focus:outline-none focus:border-black resize-none" 
+                  <label className="block text-sm font-medium text-neutral-700">Images (Drag & Drop)</label>
+                  <ImageUpload 
+                    images={formData.images || []}
+                    onChange={(newImages) => setFormData((prev: any) => ({ ...prev, images: newImages }))} 
                   />
                 </div>
               </div>
@@ -353,13 +415,13 @@ export function ProductsManager() {
                 <div className="flex items-center gap-2">
                   <input 
                     type="checkbox" 
-                    id="isActive" 
-                    name="isActive"
-                    checked={formData.isActive || false}
+                    id="is_active" 
+                    name="is_active"
+                    checked={formData.is_active || false}
                     onChange={handleChange}
                     className="w-4 h-4 text-black focus:ring-black border-neutral-300 rounded"
                   />
-                  <label htmlFor="isActive" className="text-sm font-medium text-neutral-700">
+                  <label htmlFor="is_active" className="text-sm font-medium text-neutral-700">
                     Produit Actif (Visible en boutique)
                   </label>
                 </div>
@@ -397,7 +459,7 @@ export function ProductsManager() {
                 <Button type="button" variant="outline" onClick={closeModal}>
                   Annuler
                 </Button>
-                <Button type="submit" variant="primary">
+                <Button type="submit" variant="default">
                   {editingProduct ? 'Enregistrer' : 'Créer le Produit'}
                 </Button>
               </div>

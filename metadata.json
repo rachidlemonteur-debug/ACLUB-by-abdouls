@@ -1,6 +1,6 @@
 {
-  "name": "AClub by Abdouls",
-  "description": "Premium E-commerce Store (WhatsApp First)",
+  "name": "AClub Admin",
+  "description": "Espace administrateur et backend pour la gestion du catalogue AClub by Abdouls.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

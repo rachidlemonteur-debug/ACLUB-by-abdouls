@@ -1,6 +1,6 @@
 import React from 'react';
 import { Copy, CheckCircle2 } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
+import { Button } from '../../components/ui/button';
 
 export function AdminScripts() {
   const [copied, setCopied] = React.useState<number | null>(null);

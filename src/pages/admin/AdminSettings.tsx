@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../store/AppContext';
 import { Save } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
+import { Button } from '../../components/ui/button';
 
 export function AdminSettings() {
   const { settings, updateSettings } = useApp();
@@ -50,6 +50,20 @@ export function AdminSettings() {
                   className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black"
                 />
                 <p className="text-xs text-neutral-500 mt-1">Sera utilisé pour tous les boutons "Commander sur WhatsApp".</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-black mb-1">
+                  Message WhatsApp par défaut
+                </label>
+                <textarea
+                  value={formData.defaultWhatsappMessage || ''}
+                  onChange={(e) => setFormData({ ...formData, defaultWhatsappMessage: e.target.value })}
+                  placeholder="Ex: Bonjour AClub, je souhaite commander : {produit} - {variante}"
+                  rows={2}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                />
+                <p className="text-xs text-neutral-500 mt-1">Variables : {'{produit}'}, {'{variante}'}, {'{prix}'}</p>
               </div>
             </div>
           </div>

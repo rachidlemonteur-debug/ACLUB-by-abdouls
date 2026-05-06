@@ -1,87 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut, Settings, Globe, MessageCircle, Lock } from 'lucide-react';
-import { Button } from '../ui/Button';
-import { auth, signInAnonymously } from '../../lib/firebase';
+import { LayoutDashboard, Package, LogOut, Settings, Globe, MessageCircle } from 'lucide-react';
+import { auth } from '../../lib/firebase';
+import { signOut } from 'firebase/auth';
 
 export function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
 
-  useEffect(() => {
-    const authStatus = localStorage.getItem('aclub_admin_auth');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmedPassword = password.trim();
-    if (trimmedPassword === '123') {
-      try {
-        await signInAnonymously(auth);
-        localStorage.setItem('aclub_admin_auth', 'true');
-        setIsAuthenticated(true);
-        setError('');
-      } catch (err) {
-        setError('Erreur de connexion.');
-      }
-    } else {
-      setError('Mot de passe incorrect');
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('aclub_admin_auth');
-    setIsAuthenticated(false);
+  const handleLogout = async () => {
+    await signOut(auth);
     navigate('/');
   };
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Catalogue', path: '/admin/products', icon: Package },
+    { name: 'Catégories', path: '/admin/categories', icon: Package },
     { name: 'Scripts de Vente', path: '/admin/scripts', icon: MessageCircle },
     { name: 'Configuration', path: '/admin/settings', icon: Settings }
   ];
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center p-4">
-        <Link to="/" className="mb-8 font-display text-4xl tracking-[0.1em] text-black">ACLUB</Link>
-        <div className="bg-white p-8 rounded-xl border border-neutral-200 shadow-sm w-full max-w-sm">
-          <div className="flex justify-center mb-6 text-brand-kaki">
-            <Lock className="w-12 h-12" />
-          </div>
-          <h1 className="text-xl font-bold text-center text-black mb-6">Accès Administrateur</h1>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <input
-                type="password"
-                placeholder="Mot de passe"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-neutral-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black"
-                autoFocus
-              />
-              {error && <p className="text-red-500 text-xs mt-2 font-medium">{error}</p>}
-            </div>
-            <Button type="submit" size="full" className="bg-black text-white hover:bg-neutral-800">
-              Connexion
-            </Button>
-          </form>
-          <div className="mt-6 text-center">
-            <Link to="/" className="text-sm font-medium text-neutral-500 hover:text-black">
-              &larr; Retour au site
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-neutral-50 flex">

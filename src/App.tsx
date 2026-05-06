@@ -15,8 +15,13 @@ import { NotFoundPage } from './pages/store/NotFoundPage';
 // Admin Pages
 import { Dashboard } from './pages/admin/Dashboard';
 import { ProductsManager } from './pages/admin/ProductsManager';
+import { CategoriesManager } from './pages/admin/CategoriesManager';
 import { AdminSettings } from './pages/admin/AdminSettings';
 import { AdminScripts } from './pages/admin/AdminScripts';
+import { AdminLogin } from './pages/admin/AdminLogin';
+import { AdminProtectedRoute } from './components/admin/AdminProtectedRoute';
+
+import { Toaster } from '@/components/ui/sonner';
 
 export default function App() {
   return (
@@ -32,15 +37,22 @@ export default function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Route>
 
+          {/* Admin auth */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+
           {/* Admin Routes */}
-          <Route path="admin/*" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="products" element={<ProductsManager />} />
-            <Route path="settings" element={<AdminSettings />} />
-            <Route path="scripts" element={<AdminScripts />} />
+          <Route path="/admin" element={<AdminProtectedRoute />}>
+            <Route element={<AdminLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="products" element={<ProductsManager />} />
+              <Route path="categories" element={<CategoriesManager />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="scripts" element={<AdminScripts />} />
+            </Route>
           </Route>
         </Routes>
       </Router>
+      <Toaster />
     </AppProvider>
   );
 }
