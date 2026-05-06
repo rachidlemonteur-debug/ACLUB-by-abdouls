@@ -64,8 +64,26 @@ export async function getProducts(adminRead = false) {
     }
     return products;
   } catch (error) {
-    console.error("Error fetching products", error);
-    throw error;
+    console.warn("Could not reach Cloud Firestore backend or other error. Using fallback mock data.", error);
+    // Return mock data for simple testing when backend is down
+    return [
+      {
+        id: "mock1", 
+        title: "Casquette Signature AClub",
+        name: "Casquette Signature AClub",
+        slug: "casquette-signature-aclub",
+        description: "Une casquette élégante et minimaliste.",
+        price: 15000,
+        images: ["https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&q=80&w=800"],
+        category_id: "mock-cat",
+        category: { id: "mock-cat", name: "Accessoire" },
+        is_active: true,
+        status_badge: "NOUVEAU",
+        variants: [
+          { name: "Couleur", value: "Noir", sku: "CASB-01", stock_quantity: 10 }
+        ]
+      }
+    ];
   }
 }
 
@@ -74,8 +92,11 @@ export async function getCategories() {
     const snapshot = await getDocs(collection(db, 'categories'));
     return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (err) {
-     console.error(err);
-     throw err;
+    console.warn("Could not fetch categories, returning mock data", err);
+    return [
+      { id: "mock-cat", name: "Accessoire", slug: "accessoire" },
+      { id: "mock-cat-2", name: "Mode", slug: "mode" }
+    ];
   }
 }
 

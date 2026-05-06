@@ -1,15 +1,13 @@
 import React from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, LogOut, Settings, Globe, MessageCircle } from 'lucide-react';
-import { auth } from '../../lib/firebase';
-import { signOut } from 'firebase/auth';
 
 export function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    await signOut(auth);
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
     navigate('/');
   };
 

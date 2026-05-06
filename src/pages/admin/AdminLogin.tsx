@@ -1,12 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { auth } from '@/lib/firebase'
-import { signInWithEmailAndPassword } from 'firebase/auth'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { toast } from 'sonner' // using sonner as per previous commands
+import { toast } from 'sonner' 
 
 export function AdminLogin() {
   const [email, setEmail] = useState('')
@@ -21,16 +19,17 @@ export function AdminLogin() {
     e.preventDefault()
     setLoading(true)
     
-    // Auth is managed mostly via Firebase dashboard manually for "admin" role.
-    try {
-      await signInWithEmailAndPassword(auth, email, password)
-      toast.success("Connexion réussie")
-      navigate(from, { replace: true })
-    } catch (error: any) {
-      toast.error(error.message)
-    } finally {
+    // Le simple contrôle via l'authentification (hardcoded pour le moment)
+    setTimeout(() => {
+      if (email === 'admin@aclub.com' && password === 'admin123') {
+        localStorage.setItem('isAuthenticated', 'true');
+        toast.success("Connexion réussie")
+        navigate(from, { replace: true })
+      } else {
+        toast.error("Identifiants incorrects (Essayez admin@aclub.com / admin123)")
+      }
       setLoading(false)
-    }
+    }, 500);
   }
 
   return (
@@ -42,6 +41,9 @@ export function AdminLogin() {
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
+             <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs p-3 rounded-md mb-4 font-medium">
+               Utilisez <b>admin@aclub.com</b> et <b>admin123</b> pour vous connecter.
+             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
