@@ -5,6 +5,10 @@ import { formatPrice, getWhatsAppLink, cn } from '../../lib/utils';
 import { Button } from '../../components/ui/button';
 import { Check, MessageCircle, ShieldCheck, Truck } from 'lucide-react';
 
+import { PageTransition } from '../../components/ui/PageTransition';
+
+import { motion } from 'motion/react';
+
 export function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
   const { products, trackWhatsAppClick, addToCart } = useApp();
@@ -76,12 +80,18 @@ export function ProductPage() {
   const discountedPrice = Math.round(product.price * 0.9);
 
   return (
+    <PageTransition>
     <div className="bg-brand-noir text-brand-blanc min-h-screen">
       <div className="max-w-[1440px] mx-auto px-0 sm:px-6 lg:px-12 py-0 border-t border-[#333]">
         <div className="flex flex-col md:flex-row relative">
           
           {/* Images Gallery - Scrollable Stack */}
-          <div className="w-full md:w-[60%] lg:w-[65%] flex flex-col gap-1 border-r border-[#333]">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full md:w-[60%] lg:w-[65%] flex flex-col gap-1 border-r border-[#333]"
+          >
             <div className="hidden md:flex flex-col w-full">
               {product.images.map((img, idx) => (
                 <div key={idx} className="w-full aspect-[4/5] bg-[#0f0f0f] relative overflow-hidden">
@@ -117,10 +127,15 @@ export function ProductPage() {
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* Product Info - Sticky Sidebar */}
-          <div className="w-full md:w-[40%] lg:w-[35%] px-6 py-12 md:px-12 relative">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="w-full md:w-[40%] lg:w-[35%] px-6 py-12 md:px-12 relative"
+          >
             <div className="md:sticky md:top-24">
               
               <div className="mb-4">
@@ -270,9 +285,10 @@ export function ProductPage() {
               </div>
               
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
+    </PageTransition>
   );
 }

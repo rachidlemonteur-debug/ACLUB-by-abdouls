@@ -3,6 +3,9 @@ import { useApp } from '../../store/AppContext';
 import { formatPrice } from '../../lib/utils';
 import { ArrowRight, Search } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'motion/react';
+
+import { PageTransition } from '../../components/ui/PageTransition';
 
 export function CatalogPage() {
   const { products, settings, trackPageView, trackWhatsAppClick } = useApp();
@@ -38,6 +41,7 @@ export function CatalogPage() {
     );
 
   return (
+    <PageTransition>
     <div className="flex flex-col w-full bg-brand-noir min-h-screen pt-12 pb-24 border-t border-[#333]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-16 border-b border-[#333] pb-6 gap-6">
@@ -77,9 +81,20 @@ export function CatalogPage() {
           </div>
         </div>
         
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 sm:gap-x-6 sm:gap-y-16">
-          {filteredProducts.map((product) => (
-            <div key={product.id} className="group flex flex-col">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 sm:gap-x-6 sm:gap-y-16"
+        >
+          {filteredProducts.map((product, i) => (
+            <motion.div 
+              key={product.id} 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 * i }}
+              className="group flex flex-col"
+            >
               {/* Image Area */}
               <Link to={`/product/${product.slug}`} className="relative aspect-[3/4] bg-[#0f0f0f] overflow-hidden block mb-4">
                 {product.badge && product.badge !== "Aucun" && (
@@ -127,9 +142,9 @@ export function CatalogPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
         
         {filteredProducts.length === 0 && (
           <div className="text-center py-24 border border-[#333] bg-[#0f0f0f]">
@@ -138,5 +153,6 @@ export function CatalogPage() {
         )}
       </div>
     </div>
+    </PageTransition>
   );
 }

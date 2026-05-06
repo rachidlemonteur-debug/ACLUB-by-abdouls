@@ -4,6 +4,7 @@ import { Menu, X, Sparkles, ShoppingBag } from 'lucide-react';
 import { FloatingWhatsApp } from '../ui/FloatingWhatsApp';
 import { useApp } from '../../store/AppContext';
 import { CartDrawer } from './CartDrawer';
+import { motion, AnimatePresence } from 'motion/react';
 
 export function StoreLayout() {
   const location = useLocation();
@@ -74,27 +75,35 @@ export function StoreLayout() {
         </div>
 
         {/* Mobile Menu Overlay */}
-        {isMobileMenuOpen && (
-          <div className="absolute top-[80px] left-0 w-full bg-brand-noir border-b border-[#333] lg:hidden shadow-2xl">
-            <nav className="flex flex-col p-4 gap-2">
-              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="text-brand-blanc hover:text-brand-kaki transition-colors py-4 px-4 font-bold uppercase tracking-widest text-sm border-b border-[#222]">Accueil</Link>
-              <Link to="/catalogue" onClick={() => setIsMobileMenuOpen(false)} className="text-brand-blanc hover:text-brand-kaki transition-colors py-4 px-4 font-bold uppercase tracking-widest text-sm border-b border-[#222]">Catalogue</Link>
-              <Link to="/a-propos" onClick={() => setIsMobileMenuOpen(false)} className="text-brand-blanc hover:text-brand-kaki transition-colors py-4 px-4 font-bold uppercase tracking-widest text-sm border-b border-[#222]">À Propos</Link>
-              <div className="pt-4 pb-2 px-4">
-                <button 
-                  onClick={() => {
-                    trackWhatsAppClick('Menu Mobile');
-                    const message = encodeURIComponent('Bonjour AClub 👋 Je voudrais passer une commande via le site et profiter des -10%. Pouvez-vous m\'aider ?');
-                    window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
-                  }}
-                  className="w-full bg-brand-kaki text-brand-noir px-4 py-4 text-xs font-bold uppercase tracking-widest hover:bg-[#7a8a5a] transition-colors border border-brand-kaki flex justify-center items-center"
-                >
-                  Commander sur WhatsApp →
-                </button>
-              </div>
-            </nav>
-          </div>
-        )}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute top-[80px] left-0 w-full bg-brand-noir border-b border-[#333] lg:hidden shadow-2xl overflow-hidden origin-top"
+            >
+              <nav className="flex flex-col p-4 gap-2">
+                <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="text-brand-blanc hover:text-brand-kaki transition-colors py-4 px-4 font-bold uppercase tracking-widest text-sm border-b border-[#222]">Accueil</Link>
+                <Link to="/catalogue" onClick={() => setIsMobileMenuOpen(false)} className="text-brand-blanc hover:text-brand-kaki transition-colors py-4 px-4 font-bold uppercase tracking-widest text-sm border-b border-[#222]">Catalogue</Link>
+                <Link to="/a-propos" onClick={() => setIsMobileMenuOpen(false)} className="text-brand-blanc hover:text-brand-kaki transition-colors py-4 px-4 font-bold uppercase tracking-widest text-sm border-b border-[#222]">À Propos</Link>
+                <div className="pt-4 pb-2 px-4">
+                  <button 
+                    onClick={() => {
+                      trackWhatsAppClick('Menu Mobile');
+                      const message = encodeURIComponent('Bonjour AClub 👋 Je voudrais passer une commande via le site et profiter des -10%. Pouvez-vous m\'aider ?');
+                      window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
+                    }}
+                    className="w-full bg-brand-kaki text-brand-noir px-4 py-4 text-xs font-bold uppercase tracking-widest hover:bg-[#7a8a5a] transition-colors border border-brand-kaki flex justify-center items-center"
+                  >
+                    Commander sur WhatsApp →
+                  </button>
+                </div>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* Main Content */}

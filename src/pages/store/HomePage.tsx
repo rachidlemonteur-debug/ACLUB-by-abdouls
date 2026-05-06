@@ -3,6 +3,9 @@ import { useApp } from '../../store/AppContext';
 import { formatPrice } from '../../lib/utils';
 import { Star, ArrowRight, Shirt, Monitor, Home, Sparkles, ShieldCheck } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'motion/react';
+
+import { PageTransition } from '../../components/ui/PageTransition';
 
 export function HomePage() {
   const { products, testimonials, settings, trackPageView, trackWhatsAppClick } = useApp();
@@ -46,7 +49,8 @@ export function HomePage() {
   ];
 
   return (
-    <div className="flex flex-col w-full">
+    <PageTransition>
+      <div className="flex flex-col w-full">
       {/* SECTION 1 — HERO / EDITORIAL */}
       <section className="relative w-full bg-brand-noir min-h-[90vh] flex flex-col lg:flex-row border-b border-[#333]">
         {/* Left Side: Content */}
@@ -55,13 +59,28 @@ export function HomePage() {
             <span className="inline-block border border-[#333] px-3 py-1 text-[10px] uppercase font-bold tracking-widest text-brand-kaki mb-6">
               Concept Store · Niamey
             </span>
-            <h1 className="text-6xl md:text-8xl font-display text-brand-blanc leading-[0.9] tracking-[0.02em] mb-6">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-6xl md:text-8xl font-display text-brand-blanc leading-[0.9] tracking-[0.02em] mb-6"
+            >
               L'ÉLÉGANCE<br />NOUVELLE<br /><span className="text-brand-kaki">GÉNÉRATION.</span>
-            </h1>
-            <p className="font-sans text-brand-gris text-sm md:text-base max-w-md font-medium leading-relaxed mb-10">
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="font-sans text-brand-gris text-sm md:text-base max-w-md font-medium leading-relaxed mb-10"
+            >
               Une curation stricte des meilleures pièces streetwear, soins et accessoires. Pas de compromis sur la qualité. Livré chez vous.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-max">
+            </motion.p>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="flex flex-col sm:flex-row gap-4 w-full sm:w-max"
+            >
               <Link 
                 to="/catalogue"
                 className="w-full sm:w-auto flex items-center justify-center bg-brand-kaki text-brand-noir px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-[#7a8a5a] transition-colors border border-brand-kaki"
@@ -74,7 +93,7 @@ export function HomePage() {
               >
                 Commander (WhatsApp)
               </button>
-            </div>
+            </motion.div>
           </div>
           
           <div className="flex items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-[#555] border-t border-[#333] pt-8">
@@ -98,7 +117,13 @@ export function HomePage() {
       </section>
 
       {/* SECTION 2 — DÉPARTEMENTS */}
-      <section className="bg-brand-noir py-16 lg:py-24 border-b border-[#333]">
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}
+        className="bg-brand-noir py-16 lg:py-24 border-b border-[#333]"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-12">
             <h2 className="text-3xl lg:text-5xl font-display text-brand-blanc tracking-[0.05em]">CLASSEMENT OBLIGATOIRE</h2>
@@ -124,10 +149,17 @@ export function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* SECTION 3 — LE CATALOGUE (Aperçu) */}
-      <section id="collection" className="py-24 bg-brand-noir border-b border-[#333]">
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}
+        id="collection" 
+        className="py-24 bg-brand-noir border-b border-[#333]"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-6">
             <div>
@@ -206,10 +238,16 @@ export function HomePage() {
             Voir tout l'inventaire <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
-      </section>
+      </motion.section>
 
       {/* SECTION 4 — COMMENT ÇA MARCHE */}
-      <section className="bg-brand-noir py-24 border-y border-[#333]">
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}
+        className="bg-brand-noir py-24 border-y border-[#333]"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl md:text-6xl font-display text-brand-blanc mb-16 tracking-[0.05em] text-center">AUSSI SIMPLE QUE ÇA</h2>
           
@@ -244,10 +282,16 @@ export function HomePage() {
 
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* SECTION 5 — AVIS CLIENTS */}
-      <section className="py-24 bg-brand-anthracite">
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}
+        className="py-24 bg-brand-anthracite"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-6xl font-display text-brand-blanc tracking-[0.05em] mb-4">ILS ONT COMMANDÉ</h2>
@@ -273,10 +317,16 @@ export function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* SECTION 6 — BANNIÈRE WHATSAPP */}
-      <section className="bg-brand-kaki text-brand-noir w-full">
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}
+        className="bg-brand-kaki text-brand-noir w-full"
+      >
         <div className="max-w-4xl mx-auto px-4 py-24 sm:py-32 text-center flex flex-col items-center">
           <h2 className="text-5xl md:text-8xl font-display mb-6 tracking-[0.05em] leading-none text-brand-noir">PRÊT À COMMANDER ?</h2>
           <p className="font-bold uppercase tracking-widest text-xs sm:text-sm mb-12 text-brand-noir/80">Un message. -10% de réduction. On s'occupe du reste.</p>
@@ -287,10 +337,16 @@ export function HomePage() {
             Ouvrir WhatsApp →
           </button>
         </div>
-      </section>
+      </motion.section>
 
       {/* SECTION 7 — FAQ */}
-      <section className="py-24 bg-brand-noir border-t border-[#333]">
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}
+        className="py-24 bg-brand-noir border-t border-[#333]"
+      >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-6xl font-display text-brand-blanc tracking-[0.05em] mb-4">FAQS</h2>
@@ -346,8 +402,9 @@ export function HomePage() {
             </details>
           </div>
         </div>
-      </section>
+      </motion.section>
     </div>
+    </PageTransition>
   );
 }
 
