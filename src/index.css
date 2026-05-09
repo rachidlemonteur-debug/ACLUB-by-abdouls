@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300..700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -8,14 +8,14 @@
 
 @theme {
   --color-brand-noir: #0A0A0A;
-  --color-brand-kaki: #8B9B6B;
-  --color-brand-blanc: #F5F2ED;
+  --color-brand-kaki: #C9A84C;
+  --color-brand-blanc: #F5F0E8;
   --color-brand-anthracite: #1E1E1E;
   --color-brand-gris: #7A7A7A;
   --color-brand-terra: #C4714A;
 
-  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", ui-serif, Georgia, serif;
 }
 

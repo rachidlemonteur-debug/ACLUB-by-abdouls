@@ -4,6 +4,8 @@ import { Menu, X, Sparkles, ShoppingBag } from 'lucide-react';
 import { FloatingWhatsApp } from '../ui/FloatingWhatsApp';
 import { useApp } from '../../store/AppContext';
 import { CartDrawer } from './CartDrawer';
+import { BottomNav } from './BottomNav';
+import { PageLoader } from '../ui/PageLoader';
 import { motion, AnimatePresence } from 'motion/react';
 
 export function StoreLayout() {
@@ -21,6 +23,7 @@ export function StoreLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-noir text-brand-blanc">
+      <PageLoader />
       {/* Promo Bar */}
       <div className="bg-brand-kaki text-brand-noir text-[10px] sm:text-xs font-bold tracking-widest uppercase py-2.5 text-center px-4 flex items-center justify-center gap-2">
         <Sparkles className="w-3.5 h-3.5" />
@@ -154,6 +157,7 @@ export function StoreLayout() {
           </div>
         </div>
       </footer>
+      <BottomNav />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
