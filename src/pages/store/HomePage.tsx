@@ -65,7 +65,7 @@ export function HomePage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-6xl md:text-8xl font-display text-brand-blanc leading-[0.9] tracking-[0.02em] mb-6"
             >
-              L'ÉLÉGANCE<br />NOUVELLE<br /><span className="text-brand-kaki">GÉNÉRATION.</span>
+              L'ÉLITE DU<br />STREETWEAR<br /><span className="text-brand-kaki">À NIAMEY.</span>
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
@@ -73,7 +73,7 @@ export function HomePage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="font-sans text-brand-gris text-sm md:text-base max-w-md font-medium leading-relaxed mb-10"
             >
-              Une curation stricte des meilleures pièces streetwear, soins et accessoires. Pas de compromis sur la qualité. Livré chez vous.
+              Une curation sans compromis. Pièces exclusives, soins et essentiels lifestyle. Livraison express dans la capitale.
             </motion.p>
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -85,13 +85,13 @@ export function HomePage() {
                 to="/catalogue"
                 className="w-full sm:w-auto flex items-center justify-center bg-brand-kaki text-brand-noir px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-[#7a8a5a] transition-colors border border-brand-kaki"
               >
-                Explorer la curation
+                Explorer la sélection
               </Link>
               <button 
                 onClick={handleWhatsAppGeneral}
-                className="w-full sm:w-auto bg-transparent text-brand-kaki px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-brand-kaki hover:text-brand-noir transition-colors border border-brand-kaki"
+                className="w-full sm:w-auto bg-transparent text-brand-kaki px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-brand-kaki hover:text-brand-noir transition-colors border border-brand-kaki flex justify-center"
               >
-                Commander (WhatsApp)
+                Fast Order (WhatsApp)
               </button>
             </motion.div>
           </div>
@@ -163,8 +163,8 @@ export function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-6">
             <div>
-              <h2 className="text-3xl lg:text-5xl font-display text-brand-blanc tracking-[0.05em] mb-2">L'ARRIVAGE</h2>
-              <p className="text-brand-gris font-medium text-sm">Les nouveautés sélectionnées avec rigueur.</p>
+              <h2 className="text-3xl lg:text-5xl font-display text-brand-blanc tracking-[0.05em] mb-2">LATEST DROPS</h2>
+              <p className="text-brand-gris font-medium text-sm">Les pièces exclusives fraîchement ajoutées.</p>
             </div>
             <Link 
               to="/catalogue"
@@ -223,7 +223,7 @@ export function HomePage() {
                       onClick={() => handleWhatsAppProduct(product.name, product.price)}
                       className="w-full bg-brand-kaki text-brand-noir py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-[#7a8a5a] transition-colors flex items-center justify-center gap-2"
                     >
-                      Commander <ArrowRight className="w-3 h-3" />
+                      Cop Now <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
@@ -328,13 +328,13 @@ export function HomePage() {
         className="bg-brand-kaki text-brand-noir w-full"
       >
         <div className="max-w-4xl mx-auto px-4 py-24 sm:py-32 text-center flex flex-col items-center">
-          <h2 className="text-5xl md:text-8xl font-display mb-6 tracking-[0.05em] leading-none text-brand-noir">PRÊT À COMMANDER ?</h2>
-          <p className="font-bold uppercase tracking-widest text-xs sm:text-sm mb-12 text-brand-noir/80">Un message. -10% de réduction. On s'occupe du reste.</p>
+          <h2 className="text-5xl md:text-8xl font-display mb-6 tracking-[0.05em] leading-none text-brand-noir">CONCIERGERIE PRIVÉE</h2>
+          <p className="font-bold uppercase tracking-widest text-xs sm:text-sm mb-12 text-brand-noir/80">RÉSERVATION en un clic VIA WHATSAPP (-10%). LIVRAISON OÙ TU VEUX.</p>
           <button 
             onClick={handleWhatsAppGeneral}
             className="w-full sm:w-auto bg-brand-noir text-brand-blanc px-10 py-5 text-sm font-bold uppercase tracking-widest hover:bg-[#222] transition-colors border border-brand-noir"
           >
-            Ouvrir WhatsApp →
+            COMMANDER MAINTENANT →
           </button>
         </div>
       </motion.section>
