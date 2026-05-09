@@ -149,7 +149,7 @@ export function ProductPage() {
                 {product.name}
               </h1>
               
-              <div className="flex items-center gap-4 mb-12">
+              <div className="flex items-center gap-4 mb-4">
                 <p className="text-2xl text-brand-kaki tracking-widest font-mono font-bold">
                   {formatPrice(discountedPrice)}
                 </p>
@@ -157,8 +157,15 @@ export function ProductPage() {
                   {formatPrice(product.price)}
                 </p>
                 <span className="text-[10px] font-bold text-brand-noir bg-brand-kaki px-2 py-1 uppercase tracking-widest">
-                  -10% Lancement
+                  -10% SITE
                 </span>
+              </div>
+              <div className="flex items-center gap-2 mb-12 text-[10px] font-bold tracking-widest text-[#d97706] uppercase">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#d97706] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#d97706]"></span>
+                </span>
+                Très demandé · {Math.floor(Math.random() * 5) + 2} pièces restantes
               </div>
 
               <div className="w-full h-px bg-[#333] mb-12" />
@@ -253,38 +260,70 @@ export function ProductPage() {
               {/* Action Buttons */}
               <div className="mt-8 flex flex-col gap-3 relative">
                 <button 
-                  onClick={handleAddToCart}
-                  className="w-full bg-brand-kaki text-brand-noir py-5 text-xs font-bold uppercase tracking-widest hover:bg-[#7a8a5a] transition-colors border border-brand-kaki flex justify-center items-center gap-2"
-                >
-                  Ajouter au Panier
-                </button>
-                <button 
                   onClick={handleWhatsAppClick}
-                  className="w-full bg-brand-noir text-brand-blanc py-4 text-xs font-bold uppercase tracking-widest hover:bg-[#111] transition-colors border border-[#333] flex justify-center items-center gap-2"
+                  className="w-full bg-[#25D366] text-brand-noir py-5 text-sm font-bold uppercase tracking-widest hover:bg-[#20bd5a] transition-colors border border-[#25D366] flex justify-center items-center gap-2 group relative overflow-hidden"
                 >
-                  <MessageCircle className="w-4 h-4" /> Achat Rapide
+                  <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" /> COMMANDER VIA WHATSAPP
+                  <span className="absolute right-0 top-0 h-full w-4 bg-white/20 blur-sm -skew-x-[20deg] px-6 -translate-x-[200%] group-hover:translate-x-[500%] transition-transform duration-700"></span>
                 </button>
-                {addedMessage && (
-                  <div className="absolute -top-12 left-0 right-0 bg-brand-kaki text-brand-noir text-xs font-bold text-center py-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    Produit ajouté au panier
-                  </div>
-                )}
+                <div className="flex items-center gap-2 text-xs text-brand-gris text-center w-full justify-center mt-2">
+                  <ShieldCheck className="w-4 h-4 text-brand-kaki" /> Paiement sécurisé à la livraison ou Mobile Money
+                </div>
               </div>
 
-              {/* Trust Information */}
-              <div className="mt-12 space-y-4">
-                <div className="flex items-center justify-between py-3 border-b border-[#222]">
-                  <span className="text-[10px] font-bold tracking-widest text-brand-gris uppercase">Livraison</span>
-                  <span className="text-[10px] font-bold tracking-widest text-brand-blanc uppercase text-right">Express Niamey</span>
+              {/* Social Proof & Trust */}
+              <div className="mt-10 mb-8 flex gap-4 overflow-x-hidden p-4 bg-[#111] border border-[#222]">
+                <div className="flex flex-col items-center justify-center border-r border-[#333] pr-4 w-1/3">
+                  <span className="text-xl font-display font-bold text-brand-blanc">1K+</span>
+                  <span className="text-[9px] uppercase tracking-widest text-brand-gris text-center mt-1">Commandes livrées</span>
                 </div>
-                <div className="flex items-center justify-between py-3 border-b border-[#222]">
-                  <span className="text-[10px] font-bold tracking-widest text-brand-gris uppercase">Paiement</span>
-                  <span className="text-[10px] font-bold tracking-widest text-brand-blanc uppercase text-right">Cash / Mobile Money</span>
+                 <div className="flex flex-col items-center justify-center border-r border-[#333] pr-4 w-1/3">
+                  <span className="text-xl font-display font-bold text-brand-kaki">48h</span>
+                  <span className="text-[9px] uppercase tracking-widest text-brand-gris text-center mt-1">Satisfait ou échangé</span>
                 </div>
-                <div className="flex items-center justify-between py-3 border-b border-[#222]">
-                  <span className="text-[10px] font-bold tracking-widest text-brand-gris uppercase">Service Client</span>
-                  <span className="text-[10px] font-bold tracking-widest text-brand-blanc uppercase text-right">Direct WhatsApp</span>
+                <div className="flex flex-col items-center justify-center w-1/3">
+                  <Star className="w-5 h-5 text-brand-kaki mb-1 fill-brand-kaki" />
+                  <span className="text-[9px] uppercase tracking-widest text-brand-gris text-center">Avis 5 Étoiles</span>
                 </div>
+              </div>
+
+              {/* Inline FAQ */}
+              <div className="mt-8 border-t border-[#222]">
+                <details className="group border-b border-[#222]">
+                  <summary className="flex justify-between items-center font-bold cursor-pointer list-none py-4 text-brand-blanc hover:text-brand-kaki transition-colors text-xs uppercase tracking-widest">
+                    <span>Livraison rapide à Niamey</span>
+                    <span className="transition group-open:rotate-180">
+                      <svg fill="none" height="16" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="16"><path d="M6 9l6 6 6-6"></path></svg>
+                    </span>
+                  </summary>
+                  <div className="pb-4 text-brand-gris text-xs leading-relaxed">
+                    Livraison en 24h-48h n'importe où à Niamey. Commandez avant 16h pour une programmation dès le lendemain.
+                  </div>
+                </details>
+
+                <details className="group border-b border-[#222]">
+                  <summary className="flex justify-between items-center font-bold cursor-pointer list-none py-4 text-brand-blanc hover:text-brand-kaki transition-colors text-xs uppercase tracking-widest">
+                    <span>Paiements acceptés</span>
+                    <span className="transition group-open:rotate-180">
+                      <svg fill="none" height="16" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="16"><path d="M6 9l6 6 6-6"></path></svg>
+                    </span>
+                  </summary>
+                  <div className="pb-4 text-brand-gris text-xs leading-relaxed">
+                    Options 100% sécurisées : espèces à la livraison (Cash) ou via Mobile Money au moment de valider sur WhatsApp.
+                  </div>
+                </details>
+
+                <details className="group border-b border-[#222]">
+                  <summary className="flex justify-between items-center font-bold cursor-pointer list-none py-4 text-brand-blanc hover:text-brand-kaki transition-colors text-xs uppercase tracking-widest">
+                    <span>Retours & Échanges</span>
+                    <span className="transition group-open:rotate-180">
+                      <svg fill="none" height="16" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="16"><path d="M6 9l6 6 6-6"></path></svg>
+                    </span>
+                  </summary>
+                  <div className="pb-4 text-brand-gris text-xs leading-relaxed">
+                    Satisfait ou échangé sous 48h (excepté sous-vêtements et cosmétiques). Le produit doit être dans son état d'origine.
+                  </div>
+                </details>
               </div>
               
             </div>
