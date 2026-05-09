@@ -70,24 +70,22 @@ export function AnimatedHero({ handleWhatsAppGeneral }: { handleWhatsAppGeneral:
             Une curation sans compromis. Pièces exclusives, soins et essentiels lifestyle. Livraison express dans la capitale.
           </motion.p>
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", bounce: 0.4, delay: 0.8, duration: 0.8 }}
             className="flex flex-col sm:flex-row gap-4 w-full sm:w-max"
           >
             <Link 
               to="/catalogue"
-              className="group relative w-full sm:w-auto flex items-center justify-center bg-brand-kaki text-brand-noir px-8 py-4 text-xs font-bold uppercase tracking-widest border border-brand-kaki overflow-hidden"
+              className="group relative w-full sm:w-auto flex items-center justify-center bg-brand-kaki text-brand-noir px-8 py-4 text-xs font-bold uppercase tracking-widest border border-brand-kaki overflow-hidden hover:bg-[#7a8a5a] transition-colors"
             >
-              <div className="absolute inset-0 bg-[#7a8a5a] -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
               <span className="relative z-10">Explorer la sélection</span>
             </Link>
             <button 
               onClick={handleWhatsAppGeneral}
-              className="group relative w-full sm:w-auto bg-transparent text-brand-kaki px-8 py-4 text-xs font-bold uppercase tracking-widest border border-brand-kaki flex justify-center overflow-hidden"
+              className="group relative w-full sm:w-auto bg-transparent text-brand-kaki px-8 py-4 text-xs font-bold uppercase tracking-widest border border-brand-kaki flex justify-center hover:bg-brand-kaki hover:text-brand-noir transition-colors"
             >
-              <div className="absolute inset-0 bg-brand-kaki -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
-              <span className="relative z-10 group-hover:text-brand-noir transition-colors duration-300">Fast Order (WhatsApp)</span>
+              <span className="relative z-10">Fast Order (WhatsApp)</span>
             </button>
           </motion.div>
         </div>

@@ -3,10 +3,11 @@ import { useParams, Navigate } from 'react-router-dom';
 import { useApp } from '../../store/AppContext';
 import { formatPrice, getWhatsAppLink, cn } from '../../lib/utils';
 import { Button } from '../../components/ui/button';
-import { Check, MessageCircle, ShieldCheck, Truck } from 'lucide-react';
+import { Check, MessageCircle, ShieldCheck, Truck, Star } from 'lucide-react';
 
 import { PageTransition } from '../../components/ui/PageTransition';
 import { ProductReviews } from '../../components/store/ProductReviews';
+import { ProductCard } from '../../components/store/ProductCard';
 
 import { motion } from 'motion/react';
 
@@ -81,6 +82,23 @@ export function ProductPage() {
   };
 
   const discountedPrice = Math.round(product.price * 0.9);
+
+  const similarProducts = products
+    .filter(p => p.isActive && p.id !== product.id && p.categoryId === product.categoryId)
+    .slice(0, 4);
+
+  if (similarProducts.length < 4) {
+    const additionalProducts = products
+      .filter(p => p.isActive && p.id !== product.id && !similarProducts.find(sp => sp.id === p.id))
+      .slice(0, 4 - similarProducts.length);
+    similarProducts.push(...additionalProducts);
+  }
+
+  const handleWhatsAppProduct = (name: string, price: number) => {
+    trackWhatsAppClick(name);
+    const message = encodeURIComponent(`Bonjour AClub, je souhaite commander : ${name} au prix de ${formatPrice(Math.round(price * 0.9))}`);
+    window.open(`https://wa.me/${settings.whatsappNumber}?text=${message}`, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <PageTransition>
@@ -330,6 +348,25 @@ export function ProductPage() {
           </motion.div>
         </div>
       </div>
+      
+      {similarProducts.length > 0 && (
+        <div className="w-full border-t border-[#333] pt-16 pb-16 px-6 md:px-12 lg:px-24 bg-brand-noir">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-display uppercase tracking-widest text-brand-blanc mb-8">
+              Vous pourriez aussi aimer
+            </h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {similarProducts.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  onWhatsAppClick={handleWhatsAppProduct}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       
       <ProductReviews productId={product.id} />
     </div>

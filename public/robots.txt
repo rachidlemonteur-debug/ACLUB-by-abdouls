@@ -1,0 +1,5 @@
+# https://aclub.shop/robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://aclub.shop/sitemap.xml

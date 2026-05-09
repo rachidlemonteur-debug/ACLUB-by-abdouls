@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, LayoutGrid, MessageCircle, User } from 'lucide-react';
+import { Home, LayoutGrid, MessageCircle } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
 
 export function BottomNav() {
@@ -40,16 +40,6 @@ export function BottomNav() {
         <MessageCircle className="w-5 h-5" />
         <span className="text-[9px] uppercase tracking-widest font-bold">Contact</span>
       </button>
-
-      <NavLink 
-        to="/admin/login" 
-        className={({ isActive }) => 
-          `flex flex-col items-center gap-1 transition-colors ${isActive ? 'text-brand-kaki' : 'text-brand-gris hover:text-brand-blanc'}`
-        }
-      >
-        <User className="w-5 h-5" />
-        <span className="text-[9px] uppercase tracking-widest font-bold">Admin</span>
-      </NavLink>
     </div>
   );
 }
