@@ -6,14 +6,22 @@ import { Button } from '../../components/ui/button';
 import { Check, MessageCircle, ShieldCheck, Truck } from 'lucide-react';
 
 import { PageTransition } from '../../components/ui/PageTransition';
+import { ProductReviews } from '../../components/store/ProductReviews';
 
 import { motion } from 'motion/react';
 
 export function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { products, trackWhatsAppClick, addToCart } = useApp();
+  const { products, trackWhatsAppClick, addToCart, settings } = useApp();
   
   const product = products.find(p => p.slug === slug);
+
+  const productColors = Array.isArray(product?.variants) 
+    ? product.variants.filter((v: any) => v.name.toLowerCase() === 'couleur').map((v: any) => v.value)
+    : [];
+  const productSizes = Array.isArray(product?.variants)
+    ? product.variants.filter((v: any) => v.name.toLowerCase() === 'taille').map((v: any) => v.value)
+    : [];
 
   // Initialize selected variants if they exist
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -22,20 +30,15 @@ export function ProductPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (product?.variants) {
-      if (product.variants.colors && product.variants.colors.length > 0) {
-        setSelectedColor(product.variants.colors[0]);
-      } else {
-        setSelectedColor(null);
-      }
-      
-      if (product.variants.sizes && product.variants.sizes.length > 0) {
-        setSelectedSize(product.variants.sizes[0]);
-      } else {
-        setSelectedSize(null);
-      }
+    if (productColors.length > 0) {
+      setSelectedColor(productColors[0]);
     } else {
       setSelectedColor(null);
+    }
+    
+    if (productSizes.length > 0) {
+      setSelectedSize(productSizes[0]);
+    } else {
       setSelectedSize(null);
     }
   }, [slug, product]);
@@ -182,16 +185,16 @@ export function ProductPage() {
               )}
 
               {/* Variants */}
-              {product.variants && (
+              {(productColors.length > 0 || productSizes.length > 0) && (
                 <div className="mb-12 space-y-8">
-                  {product.variants.colors && product.variants.colors.length > 0 && (
+                  {productColors.length > 0 && (
                     <div>
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-[10px] font-bold text-brand-gris uppercase tracking-widest">Couleur</h3>
                         <span className="text-[10px] font-bold text-brand-kaki uppercase">{selectedColor}</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {product.variants.colors.map(color => (
+                        {productColors.map(color => (
                           <button
                             key={color}
                             onClick={() => setSelectedColor(color)}
@@ -209,14 +212,14 @@ export function ProductPage() {
                     </div>
                   )}
 
-                  {product.variants.sizes && product.variants.sizes.length > 0 && (
+                  {productSizes.length > 0 && (
                     <div>
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-[10px] font-bold text-brand-gris uppercase tracking-widest">Taille</h3>
                         <span className="text-[10px] font-bold text-brand-kaki uppercase">{selectedSize}</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {product.variants.sizes.map(size => (
+                        {productSizes.map(size => (
                           <button
                             key={size}
                             onClick={() => setSelectedSize(size)}
@@ -288,6 +291,8 @@ export function ProductPage() {
           </motion.div>
         </div>
       </div>
+      
+      <ProductReviews productId={product.id} />
     </div>
     </PageTransition>
   );

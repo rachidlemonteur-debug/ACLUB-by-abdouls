@@ -12,6 +12,10 @@ export function ProductsManager() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const itemsPerPage = 10;
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   
@@ -24,7 +28,7 @@ export function ProductsManager() {
     images: [],
     is_active: true,
     status_badge: 'Aucun',
-    variants: { colors: [], sizes: [] }
+    variants: []
   });
 
   const loadData = async () => {
@@ -58,16 +62,19 @@ export function ProductsManager() {
       images: [],
       is_active: true,
       status_badge: 'Aucun',
-      variants: { colors: [], sizes: [] }
+      variants: []
     });
     setIsModalOpen(true);
   };
 
   const openEditModal = (product: any) => {
     setEditingProduct(product);
-    // Parse variants back into form format
-    const sizes = product.variants?.filter((v: any) => v.name === 'Taille').map((v: any) => v.value) || [];
-    const colors = product.variants?.filter((v: any) => v.name === 'Couleur').map((v: any) => v.value) || [];
+    const variants = product.variants?.map((v: any) => ({
+      name: v.name || '',
+      value: v.value || '',
+      sku: v.sku || '',
+      stock_quantity: v.stock_quantity || 0,
+    })) || [];
     const images = product.images?.sort((a: any, b: any) => a.display_order - b.display_order).map((i: any) => i.image_url) || [];
 
     setFormData({ 
@@ -79,7 +86,7 @@ export function ProductsManager() {
       images: images,
       is_active: product.is_active,
       status_badge: product.status_badge || 'Aucun',
-      variants: { colors, sizes }
+      variants: variants
     });
     setIsModalOpen(true);
   };
@@ -105,16 +112,27 @@ export function ProductsManager() {
     }
   };
 
-  const handleVariantChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    const arrayValue = value.split('\n').filter(line => line.trim() !== '');
+  const handleAddVariant = () => {
     setFormData((prev: any) => ({
       ...prev,
-      variants: {
-        ...prev.variants,
-        [name]: arrayValue
-      }
+      variants: [...(prev.variants || []), { name: '', value: '', sku: '', stock_quantity: 0 }]
     }));
+  };
+
+  const handleVariantChange = (index: number, field: string, value: string | number) => {
+    setFormData((prev: any) => {
+      const newVariants = [...(prev.variants || [])];
+      newVariants[index] = { ...newVariants[index], [field]: value };
+      return { ...prev, variants: newVariants };
+    });
+  };
+
+  const handleRemoveVariant = (index: number) => {
+    setFormData((prev: any) => {
+      const newVariants = [...(prev.variants || [])];
+      newVariants.splice(index, 1);
+      return { ...prev, variants: newVariants };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,9 +151,7 @@ export function ProductsManager() {
     };
 
     // Build variants
-    const variantsList: any[] = [];
-    formData.variants.sizes?.forEach((v: string) => variantsList.push({ name: 'Taille', value: v, sku: `${formData.slug}-size-${v}`, stock_quantity: 10 }));
-    formData.variants.colors?.forEach((v: string) => variantsList.push({ name: 'Couleur', value: v, sku: `${formData.slug}-color-${v}`, stock_quantity: 10 }));
+    const variantsList: any[] = formData.variants || [];
 
     // Build images
     const imagesList: any[] = formData.images?.map((url: string, idx: number) => ({
@@ -170,6 +186,23 @@ export function ProductsManager() {
     }
   };
 
+  const filteredProducts = products.filter(product => 
+    product.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    product.category?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+
+  const prevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const nextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
 
   return (
     <div>
@@ -178,10 +211,22 @@ export function ProductsManager() {
           <h1 className="text-2xl font-display font-semibold text-black mb-2">Catalogue Produits</h1>
           <p className="text-neutral-500 text-sm">Gérez vos produits, offres et bundles essentiels.</p>
         </div>
-        <Button size="sm" className="gap-2" onClick={openAddModal}>
-          <Plus className="w-4 h-4" />
-          Nouveau Produit
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <input
+            type="text"
+            placeholder="Rechercher un produit..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1); // Reset to first page on search
+            }}
+            className="border border-neutral-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-black min-w-[200px]"
+          />
+          <Button size="sm" className="gap-2" onClick={openAddModal}>
+            <Plus className="w-4 h-4" />
+            Nouveau Produit
+          </Button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
@@ -197,7 +242,7 @@ export function ProductsManager() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
-              {products.map((product: any) => (
+              {paginatedProducts.map((product: any) => (
                 <tr key={product.id} className="hover:bg-neutral-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -244,16 +289,52 @@ export function ProductsManager() {
                   </td>
                 </tr>
               ))}
-              {products.length === 0 && (
+              {filteredProducts.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-neutral-500">
-                    Aucun produit dans le catalogue.
+                    {searchQuery ? "Aucun produit ne correspond à votre recherche." : "Aucun produit dans le catalogue."}
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-6 py-4 border-t border-neutral-200 bg-neutral-50">
+            <span className="text-sm text-neutral-500">
+              Affichage de {filteredProducts.length > 0 ? startIndex + 1 : 0} à {Math.min(startIndex + itemsPerPage, filteredProducts.length)} sur {filteredProducts.length} produits
+            </span>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={prevPage}
+                disabled={currentPage === 1}
+              >
+                Précédent
+              </Button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                  className="hidden sm:inline-flex w-9 h-9 p-0 items-center justify-center"
+                >
+                  {page}
+                </Button>
+              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={nextPage}
+                disabled={currentPage === totalPages}
+              >
+                Suivant
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {isModalOpen && (
@@ -386,28 +467,71 @@ export function ProductsManager() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-neutral-700">Couleurs (1 par ligne)</label>
-                  <textarea 
-                    name="colors" 
-                    rows={3}
-                    value={formData.variants?.colors?.join('\n') || ''} 
-                    onChange={handleVariantChange}
-                    placeholder="Noir&#10;Blanc"
-                    className="w-full border border-neutral-200 rounded-md px-3 py-2 focus:outline-none focus:border-black resize-none" 
-                  />
+              <div className="space-y-4 pt-4 border-t border-neutral-100">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium text-black">Variantes</h3>
+                  <Button type="button" variant="outline" size="sm" onClick={handleAddVariant} className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Ajouter
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-neutral-700">Tailles (1 par ligne)</label>
-                  <textarea 
-                    name="sizes" 
-                    rows={3}
-                    value={formData.variants?.sizes?.join('\n') || ''} 
-                    onChange={handleVariantChange}
-                    placeholder="S&#10;M&#10;L&#10;XL"
-                    className="w-full border border-neutral-200 rounded-md px-3 py-2 focus:outline-none focus:border-black resize-none" 
-                  />
+                
+                <div className="space-y-3">
+                  {(formData.variants || []).map((variant: any, index: number) => (
+                    <div key={index} className="flex flex-wrap md:flex-nowrap gap-3 items-start bg-neutral-50 p-3 rounded-lg border border-neutral-200">
+                      <div className="w-full md:w-[20%] space-y-1">
+                        <label className="text-xs font-medium text-neutral-600">Nom (ex: Taille)</label>
+                        <input
+                          type="text"
+                          value={variant.name || ''}
+                          onChange={(e) => handleVariantChange(index, 'name', e.target.value)}
+                          className="w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-black"
+                        />
+                      </div>
+                      <div className="w-full md:w-[25%] space-y-1">
+                        <label className="text-xs font-medium text-neutral-600">Valeur (ex: Rouge)</label>
+                        <input
+                          type="text"
+                          value={variant.value || ''}
+                          onChange={(e) => handleVariantChange(index, 'value', e.target.value)}
+                          className="w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-black"
+                        />
+                      </div>
+                      <div className="w-full md:w-[35%] space-y-1">
+                        <label className="text-xs font-medium text-neutral-600">SKU</label>
+                        <input
+                          type="text"
+                          value={variant.sku || ''}
+                          onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
+                          className="w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-black"
+                        />
+                      </div>
+                      <div className="w-[100px] md:w-[15%] space-y-1">
+                        <label className="text-xs font-medium text-neutral-600">Stock</label>
+                        <input
+                          type="number"
+                          value={variant.stock_quantity === undefined ? '' : variant.stock_quantity}
+                          onChange={(e) => handleVariantChange(index, 'stock_quantity', e.target.value ? Number(e.target.value) : 0)}
+                          className="w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-black"
+                        />
+                      </div>
+                      <div className="pt-5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveVariant(index)}
+                          className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {(!formData.variants || formData.variants.length === 0) && (
+                    <div className="text-center py-6 text-sm text-neutral-500 bg-neutral-50 border border-neutral-200 border-dashed rounded-lg">
+                      Aucune variante (produit standard)
+                    </div>
+                  )}
                 </div>
               </div>
 

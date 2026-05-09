@@ -37,5 +37,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    match /product_reviews/{reviewId} {
+      allow read: if true;
+      // Allow anybody to write a review (no auth required for this store)
+      allow write: if true;
+    }
   }
 }

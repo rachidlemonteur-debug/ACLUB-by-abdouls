@@ -26,11 +26,11 @@ export async function getProducts(adminRead = false) {
       const pData = d.data();
       // Load variants
       const vSnapshot = await getDocs(query(collection(db, 'product_variants'), where('productId', '==', d.id)));
-      const variants = vSnapshot.docs.map(v => ({ id: v.id, ...v.data() }));
+      const variants = vSnapshot.docs.map(v => ({ id: v.id, ...(v.data() as any) }));
       
       // Load images
       const iSnapshot = await getDocs(query(collection(db, 'product_images'), where('productId', '==', d.id)));
-      const images = iSnapshot.docs.map(i => ({ id: i.id, ...i.data() })).sort((a: any, b: any) => a.displayOrder - b.displayOrder);
+      const images = iSnapshot.docs.map(i => ({ id: i.id, ...(i.data() as any) })).sort((a: any, b: any) => a.displayOrder - b.displayOrder);
 
       // Load category name
       let category = null;
@@ -252,4 +252,35 @@ export async function deleteProduct(id: string) {
      console.error(err);
      throw err;
    }
+}
+
+export async function getProductReviews(productId: string) {
+  try {
+    const reviewsRef = collection(db, 'product_reviews');
+    const q = query(reviewsRef, where('productId', '==', productId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a: any, b: any) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  } catch (err) {
+    console.error("Could not fetch reviews", err);
+    return [];
+  }
+}
+
+export async function addReview(productId: string, data: { authorName: string, rating: number, comment: string }) {
+  try {
+    const docRef = await addDoc(collection(db, 'product_reviews'), {
+      productId,
+      authorName: data.authorName,
+      rating: data.rating,
+      comment: data.comment,
+      status: 'published', // could be 'pending' if we want moderation
+      createdAt: new Date().toISOString()
+    });
+    return docRef.id;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 }
