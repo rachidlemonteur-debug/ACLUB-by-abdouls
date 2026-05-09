@@ -81,11 +81,11 @@ export function ProductCard({ product, onWhatsAppClick }: ProductCardProps) {
       
       {/* Info Area */}
       <div className="flex flex-col grow" style={{ transform: "translateZ(20px)" }}>
-        <div className="flex justify-between items-start mb-1">
-          <Link to={`/product/${product.slug}`} className="text-sm font-serif font-bold text-brand-blanc hover:text-brand-kaki transition-colors truncate pr-4">
+        <div className="flex flex-col mb-1 min-h-[44px]">
+          <Link to={`/product/${product.slug}`} className="text-sm font-serif font-bold text-brand-blanc hover:text-brand-kaki transition-colors line-clamp-2 leading-snug mb-1">
             {product.name}
           </Link>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-wrap items-baseline gap-2">
             <span className="text-sm font-bold text-brand-kaki whitespace-nowrap font-mono">
               {formatPrice(Math.round(product.price * 0.9))}
             </span>
@@ -96,7 +96,7 @@ export function ProductCard({ product, onWhatsAppClick }: ProductCardProps) {
         </div>
         <span className="text-[10px] font-bold uppercase tracking-widest text-[#555] mb-4">{product.category}</span>
         
-        <div className="mt-auto opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 transform">
+        <div className="mt-auto opacity-100 lg:opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-0 lg:translate-y-2 group-hover:translate-y-0 transform">
           <button 
             onClick={(e) => {
                e.preventDefault();

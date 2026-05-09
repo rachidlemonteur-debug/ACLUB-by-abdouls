@@ -49,11 +49,11 @@ export function AnimatedHero({ handleWhatsAppGeneral }: { handleWhatsAppGeneral:
             Concept Store · Niamey
           </motion.span>
           <motion.h1
-            style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}
+            style={{ display: "flex", flexWrap: "wrap", columnGap: "0.4rem", rowGap: "0.2rem" }}
             variants={container}
             initial="hidden"
             animate="visible"
-            className="text-6xl md:text-8xl font-display text-brand-blanc leading-[0.9] tracking-[0.02em] mb-6"
+            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display text-brand-blanc leading-[0.9] tracking-[0.02em] mb-6"
           >
             {words.map((word, index) => (
               <motion.span variants={child} key={index} className={word.includes('NIAMEY') ? 'text-brand-kaki' : ''}>
