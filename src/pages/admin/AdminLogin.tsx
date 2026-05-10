@@ -1,14 +1,12 @@
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { toast } from 'sonner' 
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { auth } from '../../lib/firebase'
 
 export function AdminLogin() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
@@ -19,17 +17,18 @@ export function AdminLogin() {
     e.preventDefault()
     setLoading(true)
     
-    // Le simple contrôle via l'authentification (hardcoded pour le moment)
-    setTimeout(() => {
-      if (email === 'admin@aclub.com' && password === 'admin123') {
-        localStorage.setItem('isAuthenticated', 'true');
-        toast.success("Connexion réussie")
-        navigate(from, { replace: true })
-      } else {
-        toast.error("Identifiants incorrects (Essayez admin@aclub.com / admin123)")
-      }
+    try {
+      const provider = new GoogleAuthProvider()
+      await signInWithPopup(auth, provider)
+      localStorage.setItem('isAuthenticated', 'true')
+      toast.success("Connexion réussie")
+      navigate(from, { replace: true })
+    } catch (error: any) {
+      console.error(error)
+      toast.error("Échec de la connexion. Veuillez réessayer.")
+    } finally {
       setLoading(false)
-    }, 500);
+    }
   }
 
   return (
@@ -41,34 +40,13 @@ export function AdminLogin() {
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
-             <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs p-3 rounded-md mb-4 font-medium">
-               Utilisez <b>admin@aclub.com</b> et <b>admin123</b> pour vous connecter.
-             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="admin@aclub.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+            <div className="text-sm text-center text-neutral-600">
+               Connectez-vous avec votre compte Google pour accéder au tableau de bord.
             </div>
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Connexion en cours..." : "Se connecter"}
+              {loading ? "Connexion en cours..." : "Se connecter avec Google"}
             </Button>
           </CardFooter>
         </form>

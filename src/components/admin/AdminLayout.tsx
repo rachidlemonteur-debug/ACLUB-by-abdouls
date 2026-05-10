@@ -1,17 +1,25 @@
 import React from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, LogOut, Settings, Globe, MessageCircle } from 'lucide-react';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../lib/firebase';
 
 export function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem('isAuthenticated');
+      navigate('/');
+    } catch (error) {
+      console.error("Logout error", error);
+    }
   };
 
   const navItems = [
+
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Catalogue', path: '/admin/products', icon: Package },
     { name: 'Catégories', path: '/admin/categories', icon: Package },
