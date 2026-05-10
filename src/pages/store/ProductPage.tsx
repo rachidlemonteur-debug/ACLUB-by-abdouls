@@ -119,6 +119,8 @@ export function ProductPage() {
                   <img 
                     src={img} 
                     alt={`${product.name} - Vue ${idx + 1}`} 
+                    loading={idx === 0 ? "eager" : "lazy"}
+                    decoding={idx === 0 ? "sync" : "async"}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -130,6 +132,7 @@ export function ProductPage() {
                 <img 
                   src={product.images[0]} 
                   alt={product.name} 
+                  loading="eager"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -141,6 +144,8 @@ export function ProductPage() {
                       <img 
                         src={img} 
                         alt={`${product.name} - Vue ${idx + 2}`} 
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                       />
                     </div>
